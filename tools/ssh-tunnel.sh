@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PACKER_SSH_HOSTNAME, PACKER_SSH_LOCAL_PORT
+# PACKER_SSH_HOSTNAME, PACKER_SSH_LOCAL_PORT, PACKER_SSH_LOGLEVEL
 # shellcheck disable=SC2034
 
 ssh_tunnel_start() {
@@ -9,7 +9,7 @@ ssh_tunnel_start() {
 
   local port="${PACKER_SSH_LOCAL_PORT:-2222}"
   cloudflared access tcp --hostname "$PACKER_SSH_HOSTNAME" --url "127.0.0.1:${port}" \
-    --loglevel warn >"${TMPDIR:-/tmp}/cloudflared-ssh.log" 2>&1 &
+    --loglevel "${PACKER_SSH_LOGLEVEL:-info}" > >(sed -u 's/^/[cloudflared] /' >&2) 2>&1 &
   SSH_TUNNEL_PID=$!
   for _ in $(seq 1 30); do
     if (exec 3<>"/dev/tcp/127.0.0.1/${port}") 2>/dev/null; then
@@ -20,7 +20,6 @@ ssh_tunnel_start() {
     sleep 1
   done
   echo "cloudflared tunnel to ${PACKER_SSH_HOSTNAME} failed" >&2
-  cat "${TMPDIR:-/tmp}/cloudflared-ssh.log" >&2
   return 1
 }
 
