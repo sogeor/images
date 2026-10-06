@@ -53,6 +53,10 @@ case "$cmd" in
     ;;
   build)
     : "${PKR_VAR_build_version:?}"
+    if [[ "${GITHUB_ACTIONS:-}" == "true" && -z "${PACKER_SSH_HOSTNAME:-}" ]]; then
+      echo "PACKER_SSH_HOSTNAME is not set" >&2
+      exit 1
+    fi
     # shellcheck source=tools/ssh-tunnel.sh
     . "$repo_root/tools/ssh-tunnel.sh"
     key_dir="$(mktemp -d)"

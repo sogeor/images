@@ -47,6 +47,10 @@ pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/config" \
   --data-urlencode "ipconfig0=ip=${ip_cidr},gw=${gateway}" >/dev/null
 pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/status/start" >/dev/null
 
+if [[ "${GITHUB_ACTIONS:-}" == "true" && -z "${PACKER_SSH_HOSTNAME:-}" ]]; then
+  echo "PACKER_SSH_HOSTNAME is not set" >&2
+  exit 1
+fi
 ssh_tunnel_start
 ssh_host="${BUILD_SSH_HOST:-$ip}"
 ssh_opts=(-i "$work/id" -p "$BUILD_SSH_PORT" -o BatchMode=yes -o ConnectTimeout=5
