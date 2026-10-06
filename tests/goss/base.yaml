@@ -1,0 +1,32 @@
+service:
+  qemu-guest-agent: { enabled: true, running: true }
+  ssh: { enabled: true, running: true }
+  chrony: { enabled: true, running: true }
+  auditd: { enabled: true, running: true }
+  nftables: { enabled: true }
+  snapd: { enabled: false, running: false }
+
+package:
+  cloud-init: { installed: true }
+  cloud-guest-utils: { installed: true }
+  python3: { installed: true }
+  openscap-scanner: { installed: true }
+  snapd: { installed: false }
+
+command:
+  sshd-no-password:
+    exec: "sshd -T | grep -i '^passwordauthentication '"
+    exit-status: 0
+    stdout: ["passwordauthentication no"]
+  sshd-no-root:
+    exec: "sshd -T | grep -i '^permitrootlogin '"
+    exit-status: 0
+    stdout: ["permitrootlogin no"]
+  no-users-with-password:
+    exec: "awk -F: '($2 !~ /^[!*]/ && $2 != \"\") {print $1}' /etc/shadow | wc -l"
+    exit-status: 0
+    stdout: ["0"]
+  no-swap:
+    exec: "swapon --noheadings | wc -l"
+    exit-status: 0
+    stdout: ["0"]

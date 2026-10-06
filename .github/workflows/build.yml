@@ -1,0 +1,186 @@
+name: build
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+    inputs:
+      image:
+        type: choice
+        options: [all, base, k8s]
+        default: all
+      base_template:
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: packer-build-proxmox
+  cancel-in-progress: false
+
+env:
+  PACKER_VERSION: "1.16.1"
+  CLOUDFLARED_VERSION: "2026.10.0"
+  CLOUDFLARED_SHA256: "d33ff2d14475178d2012c2c56beba87389ac5ded27649519f198a7d3134a99db"
+  ANSIBLE_CORE_VERSION: "2.21.5"
+
+jobs:
+  base:
+    name: ubuntu-2404-base
+    if: >-
+      github.ref == 'refs/heads/master'
+      && (github.event_name == 'schedule' || inputs.image != 'k8s')
+    runs-on: ubuntu-24.04
+    environment: images
+    timeout-minutes: 90
+    outputs:
+      template: ${{ steps.manifest.outputs.template }}
+    env:
+      PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+      PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
+      PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
+      PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
+        with:
+          version: ${{ env.PACKER_VERSION }}
+
+      - name: Install tools
+        run: tools/ci-install.sh
+
+      - name: packer build
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ github.token }}
+          PKR_VAR_build_version: ${{ github.run_number }}.${{ github.run_attempt }}
+          PKR_VAR_git_sha: ${{ github.sha }}
+        run: tools/packer.sh build ubuntu-2404-base
+
+      - id: manifest
+        name: Read manifest
+        run: echo "template=$(jq -r '.builds[-1].custom_data.template_name' manifest/ubuntu-2404-base.json)" >>"$GITHUB_OUTPUT"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reports-ubuntu-2404-base
+          path: |
+            reports/
+            manifest/
+          if-no-files-found: warn
+          retention-days: 90
+
+  k8s:
+    name: ubuntu-2404-k8s
+    needs: base
+    if: >-
+      always()
+      && github.ref == 'refs/heads/master'
+      && (needs.base.result == 'success' || needs.base.result == 'skipped')
+      && (github.event_name == 'schedule' || inputs.image != 'base')
+    runs-on: ubuntu-24.04
+    environment: images
+    timeout-minutes: 90
+    outputs:
+      template: ${{ steps.manifest.outputs.template }}
+    env:
+      PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+      PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
+      PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
+      PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
+        with:
+          version: ${{ env.PACKER_VERSION }}
+
+      - name: Install tools
+        run: tools/ci-install.sh
+
+      - name: Resolve base template
+        id: base
+        env:
+          FROM_BUILD: ${{ needs.base.outputs.template }}
+          FROM_INPUT: ${{ inputs.base_template }}
+        run: |
+          set -euo pipefail
+          tpl="${FROM_BUILD:-${FROM_INPUT:-}}"
+          if [[ -z "$tpl" ]]; then
+            tpl="$(tools/find-template.sh ubuntu-2404 base)"
+          fi
+          [[ "$tpl" =~ ^ubuntu-2404-base-v[0-9A-Za-z.-]+$ ]] || { echo "invalid template: $tpl" >&2; exit 1; }
+          echo "template=$tpl" >>"$GITHUB_OUTPUT"
+
+      - name: packer build
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ github.token }}
+          PKR_VAR_build_version: ${{ github.run_number }}.${{ github.run_attempt }}
+          PKR_VAR_git_sha: ${{ github.sha }}
+          PKR_VAR_base_template: ${{ steps.base.outputs.template }}
+        run: tools/packer.sh build ubuntu-2404-k8s
+
+      - id: manifest
+        name: Read manifest
+        run: echo "template=$(jq -r '.builds[-1].custom_data.template_name' manifest/ubuntu-2404-k8s.json)" >>"$GITHUB_OUTPUT"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reports-ubuntu-2404-k8s
+          path: |
+            reports/
+            manifest/
+          if-no-files-found: warn
+          retention-days: 90
+
+  verify-clone:
+    name: verify clone (${{ matrix.image }})
+    needs: [base, k8s]
+    if: >-
+      always()
+      && github.ref == 'refs/heads/master'
+      && !contains(needs.*.result, 'failure')
+      && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
+    environment: images
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        image: [base, k8s]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install tools
+        run: tools/ci-install.sh
+
+      - name: Clone, boot and check
+        env:
+          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+          PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
+          PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
+          PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
+          IMAGE: ${{ matrix.image }}
+          BASE_TEMPLATE: ${{ needs.base.outputs.template }}
+          K8S_TEMPLATE: ${{ needs.k8s.outputs.template }}
+        run: |
+          set -euo pipefail
+          if [[ "$IMAGE" == base ]]; then tpl="$BASE_TEMPLATE"; else tpl="$K8S_TEMPLATE"; fi
+          if [[ -z "$tpl" ]]; then
+            echo "skip: ${IMAGE} not built"
+            exit 0
+          fi
+          tools/verify-clone.sh "$tpl"

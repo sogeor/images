@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xccdf:Tailoring xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" id="xccdf_com.sogeor_tailoring_ubuntu2404">
+  <xccdf:benchmark href="ssg-ubuntu2404-ds.xml"/>
+  <xccdf:version time="2026-10-07T00:00:00">1</xccdf:version>
+  <xccdf:Profile id="xccdf_com.sogeor_profile_cis_level1_server_image" extends="xccdf_org.ssgproject.content_profile_cis_level1_server">
+    <xccdf:title>CIS Ubuntu 24.04 Level 1 Server (sogeor image)</xccdf:title>
+    <xccdf:description>Single root partition (layout direct); firewall nftables; console via Proxmox.</xccdf:description>
+
+    <!-- layout direct -->
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_partition_for_tmp" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_tmp_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_tmp_noexec" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_tmp_nosuid" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_home_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_home_nosuid" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_nosuid" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_tmp_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_tmp_noexec" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_tmp_nosuid" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_noexec" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_nosuid" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_audit_nodev" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_audit_noexec" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_mount_option_var_log_audit_nosuid" selected="false"/>
+
+    <!-- nftables -->
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_package_ufw_installed" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_service_ufw_enabled" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_check_ufw_active" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_set_ufw_default_rule" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_set_ufw_loopback_traffic" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_ufw_rules_for_open_ports" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_package_iptables_installed" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_package_iptables-persistent_installed" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_set_iptables_default_rule" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_iptables_rules_for_open_ports" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_service_nftables_disabled" selected="false"/>
+
+    <!-- console via Proxmox -->
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_grub2_password" selected="false"/>
+  </xccdf:Profile>
+</xccdf:Tailoring>

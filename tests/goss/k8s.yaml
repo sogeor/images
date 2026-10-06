@@ -1,0 +1,41 @@
+service:
+  containerd: { enabled: true, running: true }
+  kubelet: { enabled: true }
+  qemu-guest-agent: { enabled: true, running: true }
+
+kernel-param:
+  net.ipv4.ip_forward: { value: "1" }
+  net.bridge.bridge-nf-call-iptables: { value: "1" }
+  net.bridge.bridge-nf-call-ip6tables: { value: "1" }
+
+file:
+  /etc/modules-load.d/k8s.conf:
+    exists: true
+    contents: ["overlay", "br_netfilter"]
+  /etc/containerd/config.toml:
+    exists: true
+    contents: ["SystemdCgroup = true"]
+
+command:
+  kubeadm-version:
+    exec: "kubeadm version -o short"
+    exit-status: 0
+    stdout: ["v{{ .Vars.K8S_VERSION }}"]
+  kubelet-version:
+    exec: "kubelet --version"
+    exit-status: 0
+    stdout: ["v{{ .Vars.K8S_VERSION }}"]
+  k8s-packages-held:
+    exec: "apt-mark showhold"
+    exit-status: 0
+    stdout: ["kubeadm", "kubelet", "kubectl"]
+  control-plane-images-preloaded:
+    exec: >-
+      kubeadm config images list --kubernetes-version v{{ .Vars.K8S_VERSION }}
+      | while read -r i; do ctr -n k8s.io images ls -q | grep -qx "$i" || echo "missing $i"; done
+    exit-status: 0
+    stdout: ["!/missing/"]
+  no-swap:
+    exec: "swapon --noheadings | wc -l"
+    exit-status: 0
+    stdout: ["0"]

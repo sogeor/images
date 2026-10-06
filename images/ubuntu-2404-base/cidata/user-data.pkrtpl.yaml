@@ -1,0 +1,44 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  timezone: Etc/UTC
+  refresh-installer:
+    update: false
+  network:
+    version: 2
+    ethernets:
+      primary:
+        match:
+          name: "en*"
+        dhcp4: false
+        addresses: ["${ip_cidr}"]
+        routes:
+          - to: default
+            via: "${gateway}"
+        nameservers:
+          addresses: [${join(", ", nameservers)}]
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  ssh:
+    install-server: true
+    allow-pw: false
+  packages:
+    - qemu-guest-agent
+    - cloud-init
+  user-data:
+    disable_root: true
+    users:
+      - name: ${ssh_username}
+        sudo: "ALL=(ALL) NOPASSWD:ALL"
+        shell: /bin/bash
+        lock_passwd: true
+        ssh_authorized_keys:
+          - "${ssh_public_key}"
+  late-commands:
+    - curtin in-target -- systemctl enable qemu-guest-agent
