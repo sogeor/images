@@ -65,8 +65,8 @@ tools/packer.sh validate ubuntu-2404-base --syntax-only
 Из домашней сети или с `PACKER_SSH_HOSTNAME` (переменные — [MANUAL_STEPS.md](MANUAL_STEPS.md)):
 
 ```bash
-PKR_VAR_build_version="$(date +%Y%m%d).0" tools/packer.sh build ubuntu-2404-base
-PKR_VAR_build_version="$(date +%Y%m%d).0" PKR_VAR_base_template="$(tools/find-template.sh ubuntu-2404 base)" \
+PKR_VAR_build_version="$(date +%Y%m%d)-0" tools/packer.sh build ubuntu-2404-base
+PKR_VAR_build_version="$(date +%Y%m%d)-0" PKR_VAR_base_template="$(tools/find-template.sh ubuntu-2404 base)" \
   tools/packer.sh build ubuntu-2404-k8s
 tools/verify-clone.sh "$(tools/find-template.sh ubuntu-2404 k8s)"
 ```

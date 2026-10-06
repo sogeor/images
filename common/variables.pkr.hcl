@@ -10,8 +10,8 @@ variable "build_version" {
   description = "Версия сборки."
 
   validation {
-    condition     = can(regex("^[0-9A-Za-z.-]+$", var.build_version))
-    error_message = "Значение build_version может содержать только латиницу, цифры, точку и дефис."
+    condition     = can(regex("^[0-9A-Za-z-]+$", var.build_version))
+    error_message = "Значение build_version может содержать только латиницу, цифры и дефис."
   }
 }
 

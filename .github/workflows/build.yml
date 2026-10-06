@@ -57,7 +57,7 @@ jobs:
       - name: packer build
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
-          PKR_VAR_build_version: ${{ github.run_number }}.${{ github.run_attempt }}
+          PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
           PKR_VAR_git_sha: ${{ github.sha }}
         run: tools/packer.sh build ubuntu-2404-base
 
@@ -117,13 +117,13 @@ jobs:
           if [[ -z "$tpl" ]]; then
             tpl="$(tools/find-template.sh ubuntu-2404 base)"
           fi
-          [[ "$tpl" =~ ^ubuntu-2404-base-v[0-9A-Za-z.-]+$ ]] || { echo "invalid template: $tpl" >&2; exit 1; }
+          [[ "$tpl" =~ ^ubuntu-2404-base-v[0-9A-Za-z-]+$ ]] || { echo "invalid template: $tpl" >&2; exit 1; }
           echo "template=$tpl" >>"$GITHUB_OUTPUT"
 
       - name: packer build
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
-          PKR_VAR_build_version: ${{ github.run_number }}.${{ github.run_attempt }}
+          PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
           PKR_VAR_git_sha: ${{ github.sha }}
           PKR_VAR_base_template: ${{ steps.base.outputs.template }}
         run: tools/packer.sh build ubuntu-2404-k8s
