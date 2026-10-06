@@ -96,7 +96,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     scripts = [
       "${local.scripts}/debian-family/update.sh",
       "${local.scripts}/debian-family/packages.sh",
@@ -120,7 +120,7 @@ build {
     destination = "/tmp/openscap"
   }
   provisioner "shell" {
-    execute_command  = "sudo -E bash '{{ .Path }}'"
+    execute_command  = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = ["REPORT_PREFIX=${local.template_name}"]
     scripts = [
       "${local.scripts}/common/run-goss.sh",
@@ -135,7 +135,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     scripts = [
       "${local.scripts}/debian-family/cleanup.sh",
       "${local.scripts}/common/cloud-init-reset.sh",
@@ -143,7 +143,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command  = "sudo -E bash '{{ .Path }}'"
+    execute_command  = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = ["BUILD_USER=${var.ssh_username}"]
     script           = "${local.scripts}/common/remove-build-user.sh"
     skip_clean       = true

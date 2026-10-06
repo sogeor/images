@@ -54,7 +54,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = [
       "K8S_VERSION=${var.k8s_version}",
       "K8S_PACKAGE_REVISION=${var.k8s_package_revision}",
@@ -74,7 +74,7 @@ build {
     destination = "/tmp/openscap"
   }
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = [
       "REPORT_PREFIX=${local.template_name}",
       "GOSS_VARS_K8S_VERSION=${var.k8s_version}",
@@ -92,7 +92,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     scripts = [
       "${local.scripts}/debian-family/cleanup.sh",
       "${local.scripts}/common/cloud-init-reset.sh",
@@ -100,7 +100,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command  = "sudo -E bash '{{ .Path }}'"
+    execute_command  = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = ["BUILD_USER=${var.ssh_username}"]
     script           = "${local.scripts}/common/remove-build-user.sh"
     skip_clean       = true
