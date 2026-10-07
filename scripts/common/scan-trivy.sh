@@ -13,3 +13,5 @@ done
 tar -C / --ignore-failed-read -czf "${REPORT_DIR}/${REPORT_PREFIX}-rootfs.tar.gz" "${paths[@]}"
 
 rm -rf /tmp/artifacts
+chown -R "${SUDO_USER:-root}" "$REPORT_DIR"
+chmod -R u+rwX,go-rwx "$REPORT_DIR"
