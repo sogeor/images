@@ -11,8 +11,9 @@ mkdir -p "$REPORT_DIR" "$WORK"
 tar -xzf "$ART/trivy.tar.gz" -C "$WORK" trivy
 
 # vuln scan: tools/packer.sh (trivy sbom)
-"$WORK/trivy" rootfs --cache-dir "$WORK/cache" --skip-db-update --skip-java-db-update --offline-scan \
+"$WORK/trivy" rootfs --cache-dir "$WORK/cache" --skip-db-update --offline-scan \
   --skip-dirs /proc --skip-dirs /sys --skip-dirs /dev --skip-dirs /tmp \
+  --skip-files '**/*.jar' --skip-files '**/*.war' --skip-files '**/*.ear' --skip-files '**/*.par' \
   --format cyclonedx --output "${REPORT_DIR}/${REPORT_PREFIX}-sbom.cdx.json" /
 
 rm -rf "$WORK" "$ART"

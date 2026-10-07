@@ -42,7 +42,7 @@ oscap xccdf eval \
 [[ $rc -eq 0 || $rc -eq 2 ]] || exit "$rc"
 
 result_id="$(grep -o 'TestResult id="[^"]*"' "${out}-results.xml" | head -n 1 | cut -d'"' -f2)"
-oscap xccdf generate fix --fix-type ansible --result-id "$result_id" \
+oscap xccdf generate fix --fix-type ansible --result-id "$result_id" "${tailoring[@]}" \
   --output "${out}-remediation.yml" "${out}-results.xml" || true
 
 python3 - "${out}-results.xml" "${out}-summary.json" <<'PY'
