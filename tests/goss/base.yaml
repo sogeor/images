@@ -1,6 +1,7 @@
 service:
   qemu-guest-agent: { enabled: true, running: true }
-  ssh: { enabled: true, running: true }
+  ssh: { running: true }
+  ssh.socket: { enabled: true }
   chrony: { enabled: true, running: true }
   auditd: { enabled: true, running: true }
   nftables: { enabled: true }
