@@ -70,12 +70,12 @@ build {
     destination = "/tmp/goss.yaml"
   }
   provisioner "file" {
-    source      = "${var.repo_root}/.cache/artifacts/"
-    destination = "/tmp/artifacts"
+    source      = "${var.repo_root}/.cache/artifacts"
+    destination = "/tmp/"
   }
   provisioner "file" {
-    source      = "${var.repo_root}/tests/openscap/"
-    destination = "/tmp/openscap"
+    source      = "${var.repo_root}/tests/openscap"
+    destination = "/tmp/"
   }
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
