@@ -23,3 +23,8 @@ variable "ssh_public_key" {
 variable "ssh_private_key_file" {
   type = string
 }
+
+variable "apt_mirror" {
+  type    = string
+  default = "http://archive.ubuntu.com/ubuntu"
+}

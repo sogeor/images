@@ -9,6 +9,7 @@ export NEEDRESTART_MODE=a
 APT_OPTS=(
   -y
   -o DPkg::Lock::Timeout=600
+  -o Acquire::Retries=5
   -o Dpkg::Options::=--force-confdef
   -o Dpkg::Options::=--force-confold
 )

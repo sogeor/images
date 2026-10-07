@@ -7,6 +7,15 @@ autoinstall:
   timezone: Etc/UTC
   refresh-installer:
     update: false
+  apt:
+    geoip: false
+    preserve_sources_list: false
+    primary:
+      - arches: [default]
+        uri: "${apt_mirror}"
+    conf: |
+      Acquire::Retries "5";
+      Acquire::http::Timeout "30";
   network:
     version: 2
     ethernets:

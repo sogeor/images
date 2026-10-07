@@ -37,6 +37,7 @@ source "proxmox-iso" "ubuntu" {
         nameservers    = var.build_nameservers
         ssh_username   = var.ssh_username
         ssh_public_key = var.ssh_public_key
+        apt_mirror     = var.apt_mirror
       })
     }
   }
