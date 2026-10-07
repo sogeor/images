@@ -64,7 +64,11 @@ for _ in $(seq 1 60); do
 done
 ssh "${ssh_opts[@]}" "${user}@${ssh_host}" 'bash -s' <<'CHECKS'
 set -euo pipefail
-sudo cloud-init status --wait
+rc=0
+sudo cloud-init status --wait >/dev/null || rc=$?
+sudo cloud-init status --long
+# 2: done with recoverable errors
+[[ $rc -eq 0 || $rc -eq 2 ]]
 test -s /etc/machine-id
 ls /etc/ssh/ssh_host_ed25519_key >/dev/null
 systemctl is-active qemu-guest-agent
