@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SSG_VERSION="0.1.82"
-SSG_SHA512="1caea418f0a5aaef7025e1655ca45a80942ea87ee832b943644ba6f9991b14a6ac5b35dddcd04b754e1fc8fbdee7b7f394507d24b123e821cca0354dc4e03cfd"
+ART="/tmp/artifacts"
 BASE_PROFILE="xccdf_org.ssgproject.content_profile_cis_level1_server"
 TAILORED_PROFILE="xccdf_com.sogeor_profile_cis_level1_server_image"
 REPORT_DIR="/tmp/reports"
@@ -15,10 +14,10 @@ product="ubuntu${VERSION_ID//./}"
 out="${REPORT_DIR}/${REPORT_PREFIX}-openscap"
 
 mkdir -p "$REPORT_DIR" "$WORK"
-curl -fsSL "https://github.com/ComplianceAsCode/content/releases/download/v${SSG_VERSION}/scap-security-guide-${SSG_VERSION}.zip" \
-  -o "$WORK/ssg.zip"
-echo "${SSG_SHA512}  $WORK/ssg.zip" | sha512sum -c -
-python3 -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "$WORK/ssg.zip" "$WORK"
+(cd "$ART" && sha512sum -c SHA512SUMS)
+# shellcheck source=/dev/null
+. "$ART/versions.env"
+python3 -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "$ART/ssg.zip" "$WORK"
 ds="$WORK/scap-security-guide-${SSG_VERSION}/ssg-${product}-ds.xml"
 
 [[ -f "$ds" ]] || { echo "no datastream for ${product}" >&2; exit 1; }

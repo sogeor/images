@@ -72,8 +72,17 @@ case "$cmd" in
       export PKR_VAR_ssh_private_key_file="$key_dir/id_ed25519"
     fi
     mkdir -p "$repo_root/reports" "$repo_root/manifest"
+    "$repo_root/tools/fetch-artifacts.sh" "$repo_root/.cache/artifacts"
     packer init "$build_dir"
     packer build -color=false "${var_files[@]}" "$@" "$build_dir"
+    trivy="$repo_root/.cache/bin/trivy"
+    if [[ -x "$trivy" ]]; then
+      for sbom in "$repo_root"/reports/*/*-sbom.cdx.json; do
+        [[ -f "$sbom" ]] || continue
+        "$trivy" sbom --cache-dir "$repo_root/.cache/trivy" --no-progress --format json \
+          --output "${sbom%-sbom.cdx.json}-trivy.json" "$sbom"
+      done
+    fi
     ;;
   *)
     usage
