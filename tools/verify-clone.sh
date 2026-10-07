@@ -66,7 +66,7 @@ ssh "${ssh_opts[@]}" "${user}@${ssh_host}" 'bash -s' <<'CHECKS'
 set -euo pipefail
 rc=0
 sudo cloud-init status --wait >/dev/null || rc=$?
-sudo cloud-init status --long
+sudo cloud-init status --long || true
 # 2: done with recoverable errors
 [[ $rc -eq 0 || $rc -eq 2 ]]
 test -s /etc/machine-id
