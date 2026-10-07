@@ -11,6 +11,10 @@ USAGE
   exit 2
 }
 
+hcl_default() {
+  sed -n "/variable \"$1\"/,/^}/s/^ *default *= *\"\([^\"]*\)\"/\1/p" "$build_dir/variables.pkr.hcl"
+}
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cmd="${1:-}"
 [[ -n "$cmd" ]] || usage
@@ -73,6 +77,11 @@ case "$cmd" in
     fi
     mkdir -p "$repo_root/reports" "$repo_root/manifest"
     "$repo_root/tools/fetch-artifacts.sh" "$repo_root/.cache"
+    if [[ "$image" == *-k8s ]]; then
+      k8s_version="${PKR_VAR_k8s_version:-$(hcl_default k8s_version)}"
+      k8s_revision="${PKR_VAR_k8s_package_revision:-$(hcl_default k8s_package_revision)}"
+      "$repo_root/tools/fetch-k8s-debs.sh" "$repo_root/.cache/k8s-debs" "$k8s_version" "$k8s_revision"
+    fi
     packer init "$build_dir"
     packer build -color=false "${var_files[@]}" "$@" "$build_dir"
     "$repo_root/tools/scan-trivy.sh" "$repo_root/.cache" "$repo_root/reports"

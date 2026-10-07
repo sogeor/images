@@ -53,6 +53,11 @@ build {
     inline = ["sudo cloud-init status --wait || true"]
   }
 
+  provisioner "file" {
+    source      = "${var.repo_root}/.cache/k8s-debs"
+    destination = "/tmp/"
+  }
+
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = [
