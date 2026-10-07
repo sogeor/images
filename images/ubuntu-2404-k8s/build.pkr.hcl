@@ -53,11 +53,6 @@ build {
     inline = ["sudo cloud-init status --wait || true"]
   }
 
-  provisioner "file" {
-    source      = "${var.repo_root}/.cache/k8s-debs"
-    destination = "/tmp/"
-  }
-
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
     environment_vars = [
@@ -73,10 +68,6 @@ build {
   provisioner "file" {
     source      = "${var.repo_root}/tests/goss/k8s.yaml"
     destination = "/tmp/goss.yaml"
-  }
-  provisioner "file" {
-    source      = "${var.repo_root}/.cache/artifacts"
-    destination = "/tmp/"
   }
   provisioner "file" {
     source      = "${var.repo_root}/tests/openscap"

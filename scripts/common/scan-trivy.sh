@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+TRIVY_VERSION="0.75.0"
+TRIVY_SHA256="c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f"
 REPORT_DIR="/tmp/reports"
+WORK="/var/tmp/trivy"
 : "${REPORT_PREFIX:?}"
 
-# trivy: tools/packer.sh
-mkdir -p "$REPORT_DIR"
-paths=(etc/os-release etc/lsb-release etc/debian_version usr/lib/os-release var/lib/dpkg/status var/lib/dpkg/info)
-for p in usr/lib/python3/dist-packages usr/local/lib; do
-  [[ -e "/$p" ]] && paths+=("$p")
-done
-tar -C / --ignore-failed-read -czf "${REPORT_DIR}/${REPORT_PREFIX}-rootfs.tar.gz" "${paths[@]}"
+mkdir -p "$REPORT_DIR" "$WORK"
+curl -fsSL --retry 5 --retry-all-errors -o "$WORK/trivy.tar.gz" \
+  "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+echo "${TRIVY_SHA256}  $WORK/trivy.tar.gz" | sha256sum -c -
+tar -xzf "$WORK/trivy.tar.gz" -C "$WORK" trivy
 
-rm -rf /tmp/artifacts
+opts=(--cache-dir "$WORK/cache" --timeout 30m --no-progress
+  --skip-dirs /proc --skip-dirs /sys --skip-dirs /dev --skip-dirs /tmp --skip-dirs "$WORK")
+"$WORK/trivy" rootfs "${opts[@]}" --scanners vuln \
+  --format json --output "${REPORT_DIR}/${REPORT_PREFIX}-trivy.json" /
+"$WORK/trivy" rootfs "${opts[@]}" \
+  --format cyclonedx --output "${REPORT_DIR}/${REPORT_PREFIX}-sbom.cdx.json" /
+"$WORK/trivy" rootfs "${opts[@]}" --scanners vuln --severity HIGH,CRITICAL --format table / || true
+
+rm -rf "$WORK"
 chown -R "${SUDO_USER:-root}" "$REPORT_DIR"
 chmod -R u+rwX,go-rwx "$REPORT_DIR"

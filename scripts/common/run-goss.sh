@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ART="/tmp/artifacts"
+GOSS_VERSION="v0.4.9"
+GOSS_SHA256="87dd36cfa1b8b50554e6e2ca29168272e26755b19ba5438341f7c66b36decc19"
 REPORT_DIR="/tmp/reports"
 : "${REPORT_PREFIX:?}"
 
 mkdir -p "$REPORT_DIR"
-(cd "$ART" && sha256sum -c --ignore-missing SHA256SUMS)
-install -m 0755 "$ART/goss" /tmp/goss
+curl -fsSL --retry 5 --retry-all-errors -o /tmp/goss \
+  "https://github.com/goss-org/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64"
+echo "${GOSS_SHA256}  /tmp/goss" | sha256sum -c -
+chmod +x /tmp/goss
 
 vars_json="{"
 sep=""

@@ -117,10 +117,6 @@ build {
     destination = "/tmp/goss.yaml"
   }
   provisioner "file" {
-    source      = "${var.repo_root}/.cache/artifacts"
-    destination = "/tmp/"
-  }
-  provisioner "file" {
     source      = "${var.repo_root}/tests/openscap"
     destination = "/tmp/"
   }
