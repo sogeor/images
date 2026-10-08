@@ -23,6 +23,7 @@
     {
       "groupName": "lint tools",
       "matchManagers": [
+        "pip-compile",
         "pip_requirements"
       ]
     },
@@ -67,5 +68,13 @@
       ],
       "datasourceTemplate": "github-tags"
     }
-  ]
+  ],
+  "pip-compile": {
+    "managerFilePatterns": [
+      "/(^|/)requirements-[a-z]+\\.in$/"
+    ]
+  },
+  "pip_requirements": {
+    "enabled": false
+  }
 }

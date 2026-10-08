@@ -16,6 +16,8 @@
 - pre-commit, Renovate, SECURITY, MANUAL_STEPS.
 
 ### Changed
+- Scorecard: `repo_token` из секрета `SCORECARD_TOKEN` (fine-grained PAT, Administration: Read-only).
+- Python-зависимости CI устанавливаются с `--require-hashes` (`*.in` → `*.txt` через pip-compile).
 - Renovate: хуки pre-commit по SHA через regex-менеджер (исправлен ложный «апдейт» до v3.4.0); обновления раннеров `ubuntu-*` отключены.
 - PAM без `nullok`; tailoring: `grub2_uefi_password`, `package_timesyncd_installed`, `service_chronyd_disabled`.
 
