@@ -98,6 +98,7 @@ build {
 
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries     = 2
     scripts = [
       "${local.scripts}/debian-family/update.sh",
       "${local.scripts}/debian-family/packages.sh",
@@ -122,6 +123,7 @@ build {
   }
   provisioner "shell" {
     execute_command  = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries      = 2
     environment_vars = ["REPORT_PREFIX=${local.template_name}"]
     scripts = [
       "${local.scripts}/common/run-goss.sh",
@@ -137,6 +139,7 @@ build {
 
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries     = 2
     scripts = [
       "${local.scripts}/debian-family/cleanup.sh",
       "${local.scripts}/common/cloud-init-reset.sh",

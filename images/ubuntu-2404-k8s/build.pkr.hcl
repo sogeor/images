@@ -55,6 +55,7 @@ build {
 
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries     = 2
     environment_vars = [
       "K8S_VERSION=${var.k8s_version}",
       "K8S_PACKAGE_REVISION=${var.k8s_package_revision}",
@@ -75,6 +76,7 @@ build {
   }
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries     = 2
     environment_vars = [
       "REPORT_PREFIX=${local.template_name}",
       "GOSS_VARS_K8S_VERSION=${var.k8s_version}",
@@ -93,6 +95,7 @@ build {
 
   provisioner "shell" {
     execute_command = "sudo env {{ .Vars }} bash '{{ .Path }}'"
+    max_retries     = 2
     scripts = [
       "${local.scripts}/debian-family/cleanup.sh",
       "${local.scripts}/common/cloud-init-reset.sh",
