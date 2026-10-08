@@ -8,6 +8,7 @@ locals {
 source "proxmox-iso" "ubuntu" {
   node                     = var.proxmox_node
   insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
+  task_timeout             = "30m"
 
   vm_id                = var.vm_id
   vm_name              = local.template_name

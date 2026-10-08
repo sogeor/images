@@ -9,6 +9,7 @@ locals {
 source "proxmox-clone" "k8s" {
   node                     = var.proxmox_node
   insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
+  task_timeout             = "30m"
 
   clone_vm   = var.base_template
   full_clone = true
