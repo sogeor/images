@@ -9,8 +9,6 @@ user="verify"
 
 # shellcheck source=tools/pve-api.sh
 . "$(dirname "${BASH_SOURCE[0]}")/pve-api.sh"
-# shellcheck source=tools/ssh-tunnel.sh
-. "$(dirname "${BASH_SOURCE[0]}")/ssh-tunnel.sh"
 
 src_vmid="$(pve_api GET "/nodes/${PROXMOX_NODE}/qemu" |
   jq -r --arg n "$template" '.data[] | select(.template == 1 and .name == $n) | .vmid')"
@@ -26,7 +24,6 @@ cleanup() {
   pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/status/stop" >/dev/null 2>&1 || true
   sleep 5
   pve_api DELETE "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}?purge=1&destroy-unreferenced-disks=1" >/dev/null 2>&1 || true
-  ssh_tunnel_stop
   rm -rf "$work"
 }
 trap cleanup EXIT
@@ -47,15 +44,11 @@ pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/config" \
   --data-urlencode "ipconfig0=ip=${ip_cidr},gw=${gateway}" >/dev/null
 pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/status/start" >/dev/null
 
-if [[ "${GITHUB_ACTIONS:-}" == "true" && -z "${PACKER_SSH_HOSTNAME:-}" ]]; then
-  echo "PACKER_SSH_HOSTNAME is not set" >&2
-  exit 1
-fi
-ssh_tunnel_start
-ssh_host="${BUILD_SSH_HOST:-$ip}"
-ssh_opts=(-i "$work/id" -p "$BUILD_SSH_PORT" -o BatchMode=yes -o ConnectTimeout=5
+ssh_host="${PKR_VAR_ssh_host:-$ip}"
+ssh_port="${PKR_VAR_ssh_port:-22}"
+ssh_opts=(-i "$work/id" -p "$ssh_port" -o BatchMode=yes -o ConnectTimeout=5
   -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR)
-echo "wait for ssh ${ssh_host}:${BUILD_SSH_PORT}"
+echo "wait for ssh ${ssh_host}:${ssh_port}"
 for _ in $(seq 1 60); do
   if ssh "${ssh_opts[@]}" "${user}@${ssh_host}" true 2>/dev/null; then
     break

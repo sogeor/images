@@ -22,8 +22,6 @@ concurrency:
 
 env:
   PACKER_VERSION: "1.16.1"
-  CLOUDFLARED_VERSION: "2026.10.0"
-  CLOUDFLARED_SHA256: "d33ff2d14475178d2012c2c56beba87389ac5ded27649519f198a7d3134a99db"
   ANSIBLE_CORE_VERSION: "2.21.5"
 
 jobs:
@@ -41,7 +39,6 @@ jobs:
       PROXMOX_URL: ${{ vars.PROXMOX_URL }}
       PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
       PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
-      PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -53,6 +50,15 @@ jobs:
 
       - name: Install tools
         run: tools/ci-install.sh
+
+      - name: Open WireGuard
+        env:
+          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
+          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: tools/ci-wireguard.sh
 
       - name: packer build
         env:
@@ -93,7 +99,6 @@ jobs:
       PROXMOX_URL: ${{ vars.PROXMOX_URL }}
       PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
       PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
-      PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -105,6 +110,15 @@ jobs:
 
       - name: Install tools
         run: tools/ci-install.sh
+
+      - name: Open WireGuard
+        env:
+          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
+          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: tools/ci-wireguard.sh
 
       - name: Resolve base template
         id: base
@@ -167,12 +181,20 @@ jobs:
       - name: Install tools
         run: tools/ci-install.sh
 
+      - name: Open WireGuard
+        env:
+          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
+          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: tools/ci-wireguard.sh
+
       - name: Clone, boot and check
         env:
           PROXMOX_URL: ${{ vars.PROXMOX_URL }}
           PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
           PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
-          PACKER_SSH_HOSTNAME: ${{ vars.PACKER_SSH_HOSTNAME }}
           IMAGE: ${{ matrix.image }}
           BASE_TEMPLATE: ${{ needs.base.outputs.template }}
           K8S_TEMPLATE: ${{ needs.k8s.outputs.template }}

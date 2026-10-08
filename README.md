@@ -17,8 +17,8 @@
 
 ```mermaid
 flowchart LR
-  B[build.yml<br/>ubuntu-24.04 / images] -->|pve.bloogefest.com| PVE[Proxmox]
-  B -.->|cloudflared access tcp<br/>packer-ssh.bloogefest.com| BASE & K8S & VC
+  B[build.yml<br/>ubuntu-24.04 / images] -->|WireGuard 10.99.0.3| E[VDS zelda 10.99.0.1]
+  E -->|WireGuard| PVE[Proxmox 10.99.0.2]
   PVE --> BASE[ubuntu-2404-base<br/>.250]
   BASE --> TB[[шаблон base]]
   TB -->|full clone| K8S[ubuntu-2404-k8s<br/>.250]
@@ -62,7 +62,7 @@ tools/packer.sh init ubuntu-2404-base
 tools/packer.sh validate ubuntu-2404-base --syntax-only
 ```
 
-Из домашней сети или с `PACKER_SSH_HOSTNAME` (переменные — [MANUAL_STEPS.md](MANUAL_STEPS.md)):
+Из домашней сети (переменные — [MANUAL_STEPS.md](MANUAL_STEPS.md)):
 
 ```bash
 PKR_VAR_build_version="$(date +%Y%m%d)-0" tools/packer.sh build ubuntu-2404-base
@@ -92,10 +92,12 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 
 | Переменная | Источник | |
 |---|---|---|
-| `PROXMOX_URL` | Environment `images`, variable | `https://pve.bloogefest.com/api2/json` |
+| `PROXMOX_URL` | Environment `images`, variable | `https://192.168.100.10:8006/api2/json` |
 | `PROXMOX_USERNAME` | Environment `images`, variable | `packer@pve!ci` |
 | `PROXMOX_TOKEN` | Environment `images`, secret | |
-| `PACKER_SSH_HOSTNAME` | Environment `images`, variable | `packer-ssh.bloogefest.com`; без неё SSH напрямую к `192.168.100.250` |
+| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY` | Environment `images`, variable | `161.104.47.226:51820`, ключ VDS |
+| `WG_RUNNER_PRIVATE_KEY` | Environment `images`, secret | ключ раннера (`10.99.0.3`) |
+| `PROXMOX_CA_PEM` | Environment `images`, variable | CA Proxmox |
 | `PROXMOX_CA_FILE` | опционально | CA Proxmox для `tools/*.sh` |
 | `PKR_VAR_build_version` | CI / вручную | |
 | `PKR_VAR_base_template` | CI / вручную | |
@@ -108,7 +110,6 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 | `hashicorp/proxmox` | 1.2.4 |
 | `hashicorp/ansible` | 1.1.6 |
 | Ubuntu Server | 24.04.5 LTS |
-| cloudflared (CI) | 2026.10.0 |
 | ansible-core (CI) | 2.21.5 |
 | Kubernetes | 1.37.1 (`1.37.1-1.1`, pkgs.k8s.io) |
 | containerd | ≥ 2.0, Ubuntu noble-updates |

@@ -53,18 +53,8 @@ case "$cmd" in
     ;;
   build)
     : "${PKR_VAR_build_version:?}"
-    if [[ "${GITHUB_ACTIONS:-}" == "true" && -z "${PACKER_SSH_HOSTNAME:-}" ]]; then
-      echo "PACKER_SSH_HOSTNAME is not set" >&2
-      exit 1
-    fi
-    # shellcheck source=tools/ssh-tunnel.sh
-    . "$repo_root/tools/ssh-tunnel.sh"
     key_dir="$(mktemp -d)"
-    trap 'ssh_tunnel_stop; rm -rf "$key_dir"' EXIT
-    ssh_tunnel_start
-    if [[ -n "$BUILD_SSH_HOST" ]]; then
-      export PKR_VAR_ssh_host="$BUILD_SSH_HOST" PKR_VAR_ssh_port="$BUILD_SSH_PORT"
-    fi
+    trap 'rm -rf "$key_dir"' EXIT
     if [[ "$image" == *-base && -z "${PKR_VAR_ssh_public_key:-}" ]]; then
       ssh-keygen -q -t ed25519 -N '' -C "packer-${PKR_VAR_build_version}" -f "$key_dir/id_ed25519"
       PKR_VAR_ssh_public_key="$(cat "$key_dir/id_ed25519.pub")"

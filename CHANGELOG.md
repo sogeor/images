@@ -19,6 +19,7 @@
 - Структура: `images/`, `scripts/{common,debian-family}`.
 - Теги шаблонов: `packer;ubuntu-2404;<kind>;...;v<build>`.
 - Проверка TLS Proxmox включена; версии Packer и плагинов закреплены.
+- Доступ CI к Proxmox — WireGuard-сеть VDS ↔ pve ↔ раннер (`tools/ci-wireguard.sh`) вместо Cloudflare Tunnel.
 
 ### Removed
 
