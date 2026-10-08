@@ -3,58 +3,61 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sogeor/packer-images/badge)](https://scorecard.dev/viewer/?uri=github.com/sogeor/packer-images)
 [![validate](https://github.com/sogeor/packer-images/actions/workflows/validate.yml/badge.svg)](https://github.com/sogeor/packer-images/actions/workflows/validate.yml)
 
-Образы узлов платформы sogeor: шаблоны Proxmox и схема Talos Image Factory.
+Node images for the sogeor platform: Proxmox templates and the Talos Image Factory schematic.
 
-## Образы
+## Images
 
-| Образ | Цель | Билдер | Теги Proxmox |
+| Image | Target | Builder | Proxmox tags |
 |---|---|---|---|
 | `ubuntu-2404-base` | Proxmox | `proxmox-iso`, autoinstall (`cidata`) | `packer;ubuntu-2404;base;v<build>` |
-| `ubuntu-2404-k8s` | Proxmox | `proxmox-clone` от base | `packer;ubuntu-2404;k8s;k8s-<maj>-<min>;v<build>` |
-| `talos` | Все | Talos Image Factory, [`talos/schematic.yaml`](talos/schematic.yaml) | `talos-<version>-<schematic>` |
+| `ubuntu-2404-k8s` | Proxmox | `proxmox-clone` of base | `packer;ubuntu-2404;k8s;k8s-<maj>-<min>;v<build>` |
+| `talos` | Any | Talos Image Factory, [`talos/schematic.yaml`](talos/schematic.yaml) | `talos-<version>-<schematic>` |
 
-## Сборка
+## Build
 
 ```mermaid
 flowchart LR
   B[build.yml<br/>ubuntu-24.04 / images] -->|WireGuard 10.99.0.3| E[VDS zelda 10.99.0.1]
   E -->|WireGuard| PVE[Proxmox 10.99.0.2]
   PVE --> BASE[ubuntu-2404-base<br/>.250]
-  BASE --> TB[[шаблон base]]
+  BASE --> TB[[base template]]
   TB -->|full clone| K8S[ubuntu-2404-k8s<br/>.250]
-  K8S --> TK[[шаблон k8s]]
+  K8S --> TK[[k8s template]]
   TB & TK --> VC[verify-clone<br/>.250]
   BASE & K8S -.-> R[(goss · OpenSCAP CIS · Trivy)]
 ```
 
-| Этап | base | k8s |
+| Stage | base | k8s |
 |---|---|---|
-| Установка | ISO 24.04.5, autoinstall, статический IP | Клон base, cloud-init |
-| Настройка | `update`, `packages`, `ansible/image.yml` | `update`, `kubernetes` |
-| Проверки | goss, OpenSCAP, Trivy | goss, OpenSCAP, Trivy |
-| Очистка | machine-id, ключи хоста, логи, cloud-init, пользователь сборки | то же |
+| Install | ISO 24.04.5, autoinstall, static IP | Clone of base, cloud-init |
+| Configure | `update`, `packages`, `ansible/image.yml` | `update`, `kubernetes` |
+| Verify | goss, OpenSCAP, Trivy | goss, OpenSCAP, Trivy |
+| Clean up | machine-id, host keys, logs, cloud-init, build user | same |
 
-## Образ
+Builds run monthly and on demand (`workflow_dispatch`), from `master` only. After a successful clone check,
+the `prune` job keeps the 3 latest templates of each image.
 
-- Паролей нет; SSH только по ключам, `PermitRootLogin no`. Ключ сборки временный, пользователь сборки удаляется.
-- `datasource_list: [NoCloud, ConfigDrive]`, удалён `subiquity-disable-cloudinit-networking.cfg`.
-- Swap отключён.
-- k8s: containerd 2.x (`SystemdCgroup`), `overlay`/`br_netfilter`, sysctl, kubeadm/kubelet/kubectl с `hold`,
-  образы control plane загружены заранее.
+## Image properties
 
-## Отчёты
+- No passwords; SSH by keys only, `PermitRootLogin no`, PAM without `nullok`. The build key is ephemeral and the build user is removed.
+- `datasource_list: [NoCloud, ConfigDrive]`; `subiquity-disable-cloudinit-networking.cfg` removed.
+- Swap disabled.
+- k8s: containerd 2.x (`SystemdCgroup`), `overlay`/`br_netfilter`, sysctl, kubeadm/kubelet/kubectl on `hold`,
+  control plane images pre-pulled.
 
-`reports/<template>/`:
+## Reports
 
-| Файл | |
+Published as workflow artifacts, `reports/<template>/`:
+
+| File | |
 |---|---|
 | `*-goss.xml` | goss, JUnit |
 | `*-openscap.html`, `*-openscap-arf.xml`, `*-openscap-results.xml` | CIS Ubuntu 24.04 L1 Server + [tailoring](tests/openscap) |
-| `*-openscap-summary.json` | Счётчики, процент, проваленные правила |
-| `*-openscap-remediation.yml` | Ansible-исправления для проваленных правил |
-| `*-trivy.json`, `*-sbom.cdx.json` | Уязвимости, SBOM CycloneDX |
+| `*-openscap-summary.json` | Counts, score, failed rules |
+| `*-openscap-remediation.yml` | Ansible remediation for failed rules |
+| `*-trivy.json`, `*-sbom.cdx.json` | Vulnerabilities, CycloneDX SBOM |
 
-## Быстрый старт
+## Quick start
 
 ```bash
 tools/packer.sh fmt
@@ -62,7 +65,7 @@ tools/packer.sh init ubuntu-2404-base
 tools/packer.sh validate ubuntu-2404-base --syntax-only
 ```
 
-Из домашней сети (переменные — [MANUAL_STEPS.md](MANUAL_STEPS.md)):
+From the home network (see [Variables](#variables)):
 
 ```bash
 PKR_VAR_build_version="$(date +%Y%m%d)-0" tools/packer.sh build ubuntu-2404-base
@@ -71,40 +74,41 @@ PKR_VAR_build_version="$(date +%Y%m%d)-0" PKR_VAR_base_template="$(tools/find-te
 tools/verify-clone.sh "$(tools/find-template.sh ubuntu-2404 k8s)"
 ```
 
-`tools/packer.sh` собирает `common/*.pkr.hcl` и `images/<image>/` в `.build/<image>/` и подключает
-`<image>.pkrvars.hcl`. Локальные значения — `*.auto.pkrvars.hcl`.
+`tools/packer.sh` assembles `common/*.pkr.hcl` and `images/<image>/` into `.build/<image>/` and adds
+`<image>.pkrvars.hcl`. Local overrides go to `*.auto.pkrvars.hcl`.
 
-## Структура
+## Layout
 
 ```
-common/                 # плагины, общие переменные
+common/                 # plugins, shared variables
 images/<image>/         # build.pkr.hcl, variables.pkr.hcl, <image>.pkrvars.hcl, cidata/
-scripts/common/         # cloud-init, пользователь сборки, goss, OpenSCAP, Trivy
+scripts/common/         # cloud-init, build user, goss, OpenSCAP, Trivy
 scripts/debian-family/  # update, packages, kubernetes, cleanup
 ansible/                # image.yml, requirements.yml
 tests/goss/             # base.yaml, k8s.yaml
 tests/openscap/         # tailoring
 talos/                  # schematic.yaml
-tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-templates.sh
+tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-templates.sh, ci-*.sh
 ```
 
-## Переменные
+## Variables
 
-| Переменная | Источник | |
+| Variable | Source | |
 |---|---|---|
 | `PROXMOX_URL` | Environment `images`, variable | `https://192.168.100.10:8006/api2/json` |
 | `PROXMOX_USERNAME` | Environment `images`, variable | `packer@pve!ci` |
 | `PROXMOX_TOKEN` | Environment `images`, secret | |
-| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY` | Environment `images`, variable | `161.104.47.226:51820`, ключ VDS |
-| `WG_RUNNER_PRIVATE_KEY` | Environment `images`, secret | ключ раннера (`10.99.0.3`) |
-| `PROXMOX_CA_PEM` | Environment `images`, variable | CA Proxmox |
-| `PROXMOX_CA_FILE` | опционально | CA Proxmox для `tools/*.sh` |
-| `PKR_VAR_build_version` | CI / вручную | |
-| `PKR_VAR_base_template` | CI / вручную | |
+| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY` | Environment `images`, variable | `161.104.47.226:51820`, VDS public key |
+| `WG_RUNNER_PRIVATE_KEY` | Environment `images`, secret | runner key (`10.99.0.3`) |
+| `PROXMOX_CA_PEM` | Environment `images`, variable | Proxmox CA |
+| `SCORECARD_TOKEN` | Repository secret | fine-grained PAT, Administration: read-only |
+| `PROXMOX_CA_FILE` | optional | Proxmox CA for `tools/*.sh` |
+| `PKR_VAR_build_version` | CI / manual | |
+| `PKR_VAR_base_template` | CI / manual | |
 
-## Версии
+## Versions
 
-| Компонент | Версия |
+| Component | Version |
 |---|---|
 | Packer | 1.16.1 |
 | `hashicorp/proxmox` | 1.2.4 |
@@ -130,12 +134,21 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 | ansible-lint | 26.9.0 |
 | shellcheck | 0.11.0 |
 
-## Ссылки
+Python tools are locked with hashes: `tools/requirements-ci.txt`, `.github/requirements-lint.txt` (generated from `*.in` by pip-compile).
 
-- [MANUAL_STEPS.md](MANUAL_STEPS.md)
+## Contributing
+
+- Bugs and feature requests: [issues](https://github.com/sogeor/packer-images/issues). Vulnerabilities: see [SECURITY.md](SECURITY.md).
+- Changes: pull request to `master` with Conventional Commits, signed commits and a green `validate` workflow.
+- New image functionality must come with a check in `tests/goss/` (or an OpenSCAP rule in `tests/openscap/`).
+- Local checks: `pre-commit run --all-files`, `tools/packer.sh validate <image> --syntax-only`.
+
+## Links
+
 - [docs/adr-drafts](docs/adr-drafts)
 - [SECURITY.md](SECURITY.md)
+- [CHANGELOG.md](CHANGELOG.md)
 
-## Лицензия
+## License
 
 [Apache-2.0](LICENSE)

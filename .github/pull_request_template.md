@@ -1,12 +1,12 @@
-## Что изменено
+## Summary
 
-<!-- кратко -->
+<!-- what and why -->
 
-## Проверки
+## Checks
 
-- [ ] `tools/packer.sh fmt` и `validate --syntax-only` для затронутых образов
+- [ ] `tools/packer.sh fmt` and `validate --syntax-only` for affected images
 - [ ] shellcheck, yamllint, ansible-lint, actionlint, zizmor
-- [ ] gitleaks: секретов нет
-- [ ] Версии закреплены (README → «Версии»)
-- [ ] Обновлены README / CHANGELOG / MANUAL_STEPS при необходимости
-- [ ] Контракт 16.3 (теги шаблонов) не нарушен или изменение согласовано
+- [ ] gitleaks: no secrets
+- [ ] Versions pinned (README → Versions)
+- [ ] README / CHANGELOG updated if needed
+- [ ] Template tag contract unchanged, or the change is agreed

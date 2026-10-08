@@ -9,7 +9,7 @@
     - name: Ensure supported profile
       ansible.builtin.assert:
         that: hardening_profile == "image"
-        fail_msg: "image.yml поддерживает только профиль image"
+        fail_msg: "image.yml supports only the image profile"
 
     - name: Harden sshd
       ansible.builtin.copy:

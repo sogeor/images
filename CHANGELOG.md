@@ -1,32 +1,33 @@
 # Changelog
 
-Формат — [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии — [SemVer](https://semver.org/lang/ru/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
 ### Added
-- Job `prune`: удаление шаблонов старше 3 версий после успешной проверки клона.
 
-- `ubuntu-2404-base`: `proxmox-iso`, autoinstall через `cidata`, статический адрес сборки.
-- `ubuntu-2404-k8s`: `proxmox-clone` от base, containerd 2.x, Kubernetes 1.37.1 с `hold`, образы control plane.
+- `ubuntu-2404-base`: `proxmox-iso`, autoinstall via `cidata`, static build address.
+- `ubuntu-2404-k8s`: `proxmox-clone` of base, containerd 2.x, Kubernetes 1.37.1 on `hold`, pre-pulled control plane images.
 - `tools/packer.sh`, `tools/find-template.sh`, `tools/verify-clone.sh`, `tools/prune-templates.sh`.
-- goss, OpenSCAP CIS Ubuntu 24.04 L1 Server с tailoring, сводкой и Ansible-исправлениями, Trivy + SBOM.
-- Схема Talos Image Factory.
+- goss, OpenSCAP CIS Ubuntu 24.04 L1 Server with tailoring, summary and Ansible remediation, Trivy + SBOM.
+- Talos Image Factory schematic.
 - CI: `validate.yml`, `build.yml`, `scorecard.yml`.
-- pre-commit, Renovate, SECURITY, MANUAL_STEPS.
+- `prune` job: removes templates beyond the 3 latest versions after a successful clone check.
+- pre-commit, Renovate, SECURITY.md.
 
 ### Changed
-- Scorecard: `repo_token` из секрета `SCORECARD_TOKEN` (fine-grained PAT, Administration: Read-only).
-- Python-зависимости CI устанавливаются с `--require-hashes` (`*.in` → `*.txt` через pip-compile).
-- Renovate: хуки pre-commit по SHA через regex-менеджер (исправлен ложный «апдейт» до v3.4.0); обновления раннеров `ubuntu-*` отключены.
-- PAM без `nullok`; tailoring: `grub2_uefi_password`, `package_timesyncd_installed`, `service_chronyd_disabled`.
 
-- Структура: `images/`, `scripts/{common,debian-family}`.
-- Теги шаблонов: `packer;ubuntu-2404;<kind>;...;v<build>`.
-- Проверка TLS Proxmox включена; версии Packer и плагинов закреплены.
-- Доступ CI к Proxmox — WireGuard-сеть VDS ↔ pve ↔ раннер (`tools/ci-wireguard.sh`) вместо Cloudflare Tunnel.
+- Layout: `images/`, `scripts/{common,debian-family}`.
+- Template tags: `packer;ubuntu-2404;<kind>;...;v<build>`.
+- Proxmox TLS verification enabled; Packer and plugin versions pinned.
+- CI reaches Proxmox over a WireGuard network VDS ↔ pve ↔ runner (`tools/ci-wireguard.sh`) instead of Cloudflare Tunnel.
+- PAM without `nullok`; tailoring: `grub2_uefi_password`, `package_timesyncd_installed`, `service_chronyd_disabled`.
+- Renovate: pre-commit hooks pinned by SHA through a regex manager; `ubuntu-*` runner updates disabled.
+- CI Python dependencies installed with `--require-hashes` (`*.in` → `*.txt` via pip-compile).
+- Scorecard: `repo_token` from the `SCORECARD_TOKEN` secret.
+- Documentation translated to English.
 
 ### Removed
 
 - `scripts/rhel-family/`.
-- systemd-юнит удаления пользователя сборки.
+- systemd unit for build user removal.

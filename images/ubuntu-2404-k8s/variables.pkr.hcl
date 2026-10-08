@@ -9,7 +9,7 @@ variable "k8s_version" {
 
   validation {
     condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.k8s_version))
-    error_message = "Значение k8s_version должно быть в формате X.Y.Z."
+    error_message = "The k8s_version value must be in the X.Y.Z format."
   }
 }
 

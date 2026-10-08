@@ -1,17 +1,17 @@
-# ADR (черновик): build.yml до появления reusable workflow
+# ADR (draft): local build.yml until the reusable workflow exists
 
-- Статус: предложено
-- Дата: 2026-10-07
+- Status: proposed
+- Date: 2026-10-07
 
-## Контекст
+## Context
 
-Сборка должна вызывать `actions-workflows/.github/workflows/packer-build.yml` по тегу. Репозитория ещё нет.
+The build should call `actions-workflows/.github/workflows/packer-build.yml` by tag. That repository does not exist yet.
 
-## Решение
+## Decision
 
-`build.yml` и `validate.yml` описаны в `packer-images`. Логика — в `tools/packer.sh` и `tools/verify-clone.sh`.
+`build.yml` and `validate.yml` live in `packer-images`. The logic is in `tools/packer.sh` and `tools/verify-clone.sh`.
 
-## Последствия
+## Consequences
 
-После появления `packer-build.yml` заменить `build.yml` вызовом
+Once `packer-build.yml` exists, replace `build.yml` with
 `uses: sogeor/actions-workflows/.github/workflows/packer-build.yml@<sha> # vX.Y.Z`.

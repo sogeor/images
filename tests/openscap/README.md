@@ -1,23 +1,23 @@
 # OpenSCAP
 
-Профиль: CIS Ubuntu 24.04 Level 1 Server, SCAP Security Guide 0.1.82, с tailoring
+Profile: CIS Ubuntu 24.04 Level 1 Server, SCAP Security Guide 0.1.82, with tailoring
 [`tailoring-ubuntu2404.xml`](tailoring-ubuntu2404.xml).
 
-| Отключено | Причина |
+| Disabled | Reason |
 |---|---|
-| `partition_for_tmp`, `mount_option_{tmp,home,var,var_tmp,var_log,var_log_audit}_*` | Один корневой раздел (`layout: direct`), диск расширяется клонами |
-| `*ufw*`, `*iptables*`, `service_nftables_disabled` | Межсетевой экран — nftables |
-| `grub2_password`, `grub2_uefi_password` | Консоль ВМ доступна только через Proxmox |
-| `package_timesyncd_installed`, `service_chronyd_disabled` | Синхронизация времени — chrony (CIS допускает один из вариантов) |
+| `partition_for_tmp`, `mount_option_{tmp,home,var,var_tmp,var_log,var_log_audit}_*` | Single root partition (`layout: direct`); disks are grown by clones |
+| `*ufw*`, `*iptables*`, `service_nftables_disabled` | Firewall is nftables |
+| `grub2_password`, `grub2_uefi_password` | VM console is reachable only through Proxmox |
+| `package_timesyncd_installed`, `service_chronyd_disabled` | Time sync is chrony (CIS allows either) |
 
-Отчёты в `reports/<template>/`:
+Reports in `reports/<template>/`:
 
-| Файл | Содержимое |
+| File | Content |
 |---|---|
-| `*-openscap.html` | Отчёт для чтения |
-| `*-openscap-arf.xml` | ARF для DefectDojo |
+| `*-openscap.html` | Human-readable report |
+| `*-openscap-arf.xml` | ARF for DefectDojo |
 | `*-openscap-results.xml` | XCCDF results |
-| `*-openscap-summary.json` | Счётчики, процент соответствия, проваленные правила по severity |
-| `*-openscap-remediation.yml` | Ansible-плейбук исправлений для проваленных правил |
+| `*-openscap-summary.json` | Counts, compliance score, failed rules by severity |
+| `*-openscap-remediation.yml` | Ansible remediation playbook for failed rules |
 
-Несоответствия не прерывают сборку. Исправления переносятся в роль `hardening` репозитория `ansible`.
+Findings do not fail the build. Remediations go to the `hardening` role in the `ansible` repository.

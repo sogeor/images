@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| Версия | `v1.14.2` |
-| Расширения | `siderolabs/qemu-guest-agent`, `siderolabs/tailscale` |
-| ID схемы | `TODO` |
+| Version | `v1.14.2` |
+| Extensions | `siderolabs/qemu-guest-agent`, `siderolabs/tailscale` |
+| Schematic ID | `TODO` |
 
 ```bash
 curl -fsS -X POST --data-binary @talos/schematic.yaml https://factory.talos.dev/schematics

@@ -1,14 +1,15 @@
-# Политика безопасности
+# Security Policy
 
-## Как сообщить об уязвимости
+## Reporting a vulnerability
 
-Не создавайте публичный issue. Используйте
+Do not open a public issue. Use
 [Private Vulnerability Reporting](https://github.com/sogeor/packer-images/security/advisories/new).
 
-Ответ — до 7 дней. Исправление: Critical — 7 дней, High — 30 дней.
+Reports are accepted in English or Russian. Initial response within 7 days.
+Fix targets: Critical — 7 days, High — 30 days.
 
-## Область
+## Scope
 
-- шаблоны Packer, скрипты, плейбук образа;
-- workflow GitHub Actions;
-- схема Talos Image Factory.
+- Packer templates, scripts, the image playbook;
+- GitHub Actions workflows;
+- Talos Image Factory schematic.

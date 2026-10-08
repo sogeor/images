@@ -2,16 +2,16 @@
 
 variable "repo_root" {
   type        = string
-  description = "Корень репозитория."
+  description = "Repository root."
 }
 
 variable "build_version" {
   type        = string
-  description = "Версия сборки."
+  description = "Build version."
 
   validation {
     condition     = can(regex("^[0-9A-Za-z-]+$", var.build_version))
-    error_message = "Значение build_version может содержать только латиницу, цифры и дефис."
+    error_message = "The build_version value may contain only Latin letters, digits and hyphens."
   }
 }
 
@@ -56,7 +56,7 @@ variable "build_ip_cidr" {
 
   validation {
     condition     = can(cidrhost(var.build_ip_cidr, 0))
-    error_message = "Значение build_ip_cidr должно быть адресом в формате CIDR."
+    error_message = "The build_ip_cidr value must be an address in CIDR notation."
   }
 }
 

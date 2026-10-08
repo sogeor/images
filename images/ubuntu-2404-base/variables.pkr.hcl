@@ -7,7 +7,7 @@ variable "iso_checksum" {
 
   validation {
     condition     = can(regex("^sha256:[0-9a-f]{64}$", var.iso_checksum))
-    error_message = "Значение iso_checksum должно быть в формате sha256:<hex>."
+    error_message = "The iso_checksum value must be in the sha256:<hex> format."
   }
 }
 
