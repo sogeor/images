@@ -8,6 +8,13 @@ set -euo pipefail
 : "${PROXMOX_URL:?}"
 : "${PROXMOX_CA_PEM:?}"
 
+PROXMOX_URL="$(printf '%s' "$PROXMOX_URL" | tr -d '[:space:]')"
+WG_ENDPOINT="$(printf '%s' "$WG_ENDPOINT" | tr -d '[:space:]')"
+WG_SERVER_PUBLIC_KEY="$(printf '%s' "$WG_SERVER_PUBLIC_KEY" | tr -d '[:space:]')"
+if [[ -n "${GITHUB_ENV:-}" ]]; then
+  echo "PROXMOX_URL=${PROXMOX_URL}" >>"$GITHUB_ENV"
+fi
+
 address="${WG_ADDRESS:-10.99.0.3/24}"
 allowed="${WG_ALLOWED_IPS:-10.99.0.0/24, 192.168.100.0/24}"
 dir="${RUNNER_TEMP:-/tmp}/wg"

@@ -31,3 +31,7 @@ command:
     exec: "swapon --noheadings | wc -l"
     exit-status: 0
     stdout: ["0"]
+  pam-no-nullok:
+    exec: "grep -c nullok /etc/pam.d/common-auth /etc/pam.d/common-password || true"
+    exit-status: 0
+    stdout: ["/etc/pam.d/common-auth:0", "/etc/pam.d/common-password:0"]

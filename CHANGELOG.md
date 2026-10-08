@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Added
+- Job `prune`: удаление шаблонов старше 3 версий после успешной проверки клона.
 
 - `ubuntu-2404-base`: `proxmox-iso`, autoinstall через `cidata`, статический адрес сборки.
 - `ubuntu-2404-k8s`: `proxmox-clone` от base, containerd 2.x, Kubernetes 1.37.1 с `hold`, образы control plane.
@@ -15,6 +16,7 @@
 - pre-commit, Renovate, SECURITY, MANUAL_STEPS.
 
 ### Changed
+- PAM без `nullok`; tailoring: `grub2_uefi_password`, `package_timesyncd_installed`, `service_chronyd_disabled`.
 
 - Структура: `images/`, `scripts/{common,debian-family}`.
 - Теги шаблонов: `packer;ubuntu-2404;<kind>;...;v<build>`.

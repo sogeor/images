@@ -12,6 +12,12 @@ on:
       base_template:
         type: string
         required: false
+      debug:
+        type: boolean
+        default: false
+      prune:
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -64,6 +70,7 @@ jobs:
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
           PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
+          PACKER_LOG: ${{ inputs.debug && '1' || '' }}
           PKR_VAR_git_sha: ${{ github.sha }}
         run: tools/packer.sh build ubuntu-2404-base
 
@@ -138,6 +145,7 @@ jobs:
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
           PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
+          PACKER_LOG: ${{ inputs.debug && '1' || '' }}
           PKR_VAR_git_sha: ${{ github.sha }}
           PKR_VAR_base_template: ${{ steps.base.outputs.template }}
         run: tools/packer.sh build ubuntu-2404-k8s
@@ -206,3 +214,42 @@ jobs:
             exit 0
           fi
           tools/verify-clone.sh "$tpl"
+
+  prune:
+    name: prune templates
+    needs: [base, k8s, verify-clone]
+    if: >-
+      always()
+      && github.ref == 'refs/heads/master'
+      && (github.event_name == 'schedule' || inputs.prune)
+      && needs.verify-clone.result == 'success'
+      && !contains(needs.*.result, 'failure')
+      && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
+    environment: images
+    timeout-minutes: 15
+    env:
+      KEEP: "3"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Open WireGuard
+        env:
+          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
+          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
+          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: tools/ci-wireguard.sh
+
+      - name: Prune
+        env:
+          PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
+          PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
+        run: |
+          set -euo pipefail
+          for kind in k8s base; do
+            tools/prune-templates.sh ubuntu-2404 "$kind" "$KEEP" --apply
+          done

@@ -18,7 +18,9 @@ pve_templates "$os" "$kind" | tail -n +"$((keep + 1))" |
   while read -r name vmid; do
     if [[ "$apply" == "--apply" ]]; then
       echo "delete ${name} (${vmid})"
-      pve_api DELETE "/nodes/${PROXMOX_NODE}/qemu/${vmid}" >/dev/null
+      upid="$(pve_api DELETE "/nodes/${PROXMOX_NODE}/qemu/${vmid}?purge=1" | jq -r '.data')" &&
+        pve_wait_task "$upid" ||
+        echo "::warning::skip ${name} (${vmid}): delete failed (linked clones?)"
     else
       echo "[dry-run] delete ${name} (${vmid})"
     fi

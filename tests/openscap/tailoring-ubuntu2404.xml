@@ -40,5 +40,9 @@
 
     <!-- console via Proxmox -->
     <xccdf:select idref="xccdf_org.ssgproject.content_rule_grub2_password" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_grub2_uefi_password" selected="false"/>
+    <!-- chrony -->
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_package_timesyncd_installed" selected="false"/>
+    <xccdf:select idref="xccdf_org.ssgproject.content_rule_service_chronyd_disabled" selected="false"/>
   </xccdf:Profile>
 </xccdf:Tailoring>

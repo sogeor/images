@@ -44,3 +44,6 @@ systemctl enable qemu-guest-agent nftables auditd chrony
 
 apt-get "${APT_OPTS[@]}" autoremove --purge
 apt-get clean
+
+sed -i 's/[[:space:]]nullok\b//' /usr/share/pam-configs/unix
+DEBIAN_FRONTEND=noninteractive pam-auth-update --package

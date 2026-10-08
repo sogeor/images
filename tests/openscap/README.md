@@ -7,7 +7,8 @@
 |---|---|
 | `partition_for_tmp`, `mount_option_{tmp,home,var,var_tmp,var_log,var_log_audit}_*` | Один корневой раздел (`layout: direct`), диск расширяется клонами |
 | `*ufw*`, `*iptables*`, `service_nftables_disabled` | Межсетевой экран — nftables |
-| `grub2_password` | Консоль ВМ доступна только через Proxmox |
+| `grub2_password`, `grub2_uefi_password` | Консоль ВМ доступна только через Proxmox |
+| `package_timesyncd_installed`, `service_chronyd_disabled` | Синхронизация времени — chrony (CIS допускает один из вариантов) |
 
 Отчёты в `reports/<template>/`:
 
