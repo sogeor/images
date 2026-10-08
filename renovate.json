@@ -1,39 +1,71 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":dependencyDashboard", "helpers:pinGitHubActionDigests"],
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "helpers:pinGitHubActionDigests"
+  ],
   "automerge": false,
   "pinDigests": true,
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "pre-commit": {
-    "enabled": true
+    "enabled": false
   },
   "packageRules": [
     {
       "groupName": "github-actions",
-      "matchManagers": ["github-actions"]
-    },
-    {
-      "groupName": "pre-commit hooks",
-      "matchManagers": ["pre-commit"]
+      "matchManagers": [
+        "github-actions"
+      ]
     },
     {
       "groupName": "lint tools",
-      "matchManagers": ["pip_requirements"]
+      "matchManagers": [
+        "pip_requirements"
+      ]
     },
     {
       "groupName": "kubernetes",
-      "matchPackageNames": ["kubernetes/kubernetes"],
+      "matchPackageNames": [
+        "kubernetes/kubernetes"
+      ],
       "separateMinorPatch": true
+    },
+    {
+      "groupName": "pre-commit hooks",
+      "matchFileNames": [
+        ".pre-commit-config.yaml"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "github-runners"
+      ],
+      "enabled": false
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/\\.pkr\\.hcl$/"],
+      "managerFilePatterns": [
+        "/\\.pkr\\.hcl$/"
+      ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.pre-commit-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "repo: https://github\\.com/(?<depName>\\S+)\\s+rev: (?<currentDigest>[0-9a-f]{40}) # (?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "github-tags"
     }
   ]
 }
