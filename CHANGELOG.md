@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `prune` job: removes templates beyond the 3 latest versions after a successful clone check.
 - pre-commit, Renovate, SECURITY.md.
 - OpenSSF Best Practices badge (passing).
+- CONTRIBUTING, GOVERNANCE, CODE_OF_CONDUCT, ROADMAP, docs/architecture.md, docs/security.md (assurance case); vulnerability response process in SECURITY.md.
 
 ### Changed
 

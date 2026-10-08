@@ -139,13 +139,13 @@ Python tools are locked with hashes: `tools/requirements-ci.txt`, `.github/requi
 
 ## Contributing
 
-- Bugs and feature requests: [issues](https://github.com/sogeor/packer-images/issues). Vulnerabilities: see [SECURITY.md](SECURITY.md).
-- Changes: pull request to `master` with Conventional Commits, signed commits and a green `validate` workflow.
-- New image functionality must come with a check in `tests/goss/` (or an OpenSCAP rule in `tests/openscap/`).
-- Local checks: `pre-commit run --all-files`, `tools/packer.sh validate <image> --syntax-only`.
+See [CONTRIBUTING.md](CONTRIBUTING.md): process, tests and coding standards. Project governance is in
+[GOVERNANCE.md](GOVERNANCE.md), plans in [ROADMAP.md](ROADMAP.md), conduct rules in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Links
 
+- [Architecture](docs/architecture.md)
+- [Security](docs/security.md)
 - [docs/adr-drafts](docs/adr-drafts)
 - [SECURITY.md](SECURITY.md)
 - [CHANGELOG.md](CHANGELOG.md)
