@@ -124,10 +124,10 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 | SCAP Security Guide | 0.1.82 |
 | Talos Linux | 1.14.2 |
 | actions/checkout | v7.0.1 |
-| actions/upload-artifact | v7.0.1 |
+| actions/upload-artifact | v7.0.2 |
 | hashicorp/setup-packer | v3.4.0 |
 | ossf/scorecard-action | v2.4.4 |
-| github/codeql-action | v4.38.2 |
+| github/codeql-action | v4.38.3 |
 | actionlint | 1.7.12 |
 | gitleaks | 8.30.1 |
 | zizmor | 1.30.1 |
