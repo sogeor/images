@@ -9,7 +9,7 @@ Horizon: through Q4 2027. Order follows the sogeor platform plan.
 - `ubuntu-2404-k8s` for Yandex Cloud (`hashicorp/yandex` builder, image family `sogeor-ubuntu-2404-k8s`).
 - Talos Image Factory schematic with a published schematic ID and image URLs.
 - Build provenance and SBOM attestations for templates (SLSA).
-- Reusable build workflow from `sogeor/actions-workflows` instead of the local `build.yml`.
+- Reusable build workflow from `sogeor/workflows` instead of the local `build.yml`.
 - Replace the manual WireGuard network with Headscale; AmneziaWG as a fallback if WireGuard is blocked.
 
 ## Not planned

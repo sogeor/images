@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - CI Python dependencies installed with `--require-hashes` (`*.in` → `*.txt` via pip-compile).
 - Scorecard: `repo_token` from the `SCORECARD_TOKEN` secret.
 - Documentation translated to English.
+- Repository renamed from `packer-images` to `images`.
 
 ### Removed
 

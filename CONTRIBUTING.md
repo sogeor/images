@@ -2,7 +2,7 @@
 
 ## Process
 
-1. Open an [issue](https://github.com/sogeor/packer-images/issues) for bugs and feature requests
+1. Open an [issue](https://github.com/sogeor/images/issues) for bugs and feature requests
    (English or Russian). Report vulnerabilities privately per [SECURITY.md](SECURITY.md).
 2. Create a branch `feat/...` or `fix/...` and open a pull request to `master`.
 3. Requirements for a pull request to be accepted:
@@ -36,8 +36,8 @@ All documentation, comments and messages are in English.
 ## Local setup
 
 ```bash
-git clone https://github.com/sogeor/packer-images.git
-cd packer-images
+git clone https://github.com/sogeor/images.git
+cd images
 pre-commit install
 pre-commit run --all-files
 tools/packer.sh init ubuntu-2404-base

@@ -1,8 +1,8 @@
-# packer-images
+# images
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sogeor/packer-images/badge)](https://scorecard.dev/viewer/?uri=github.com/sogeor/packer-images)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sogeor/images/badge)](https://scorecard.dev/viewer/?uri=github.com/sogeor/images)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15317/badge)](https://www.bestpractices.dev/projects/15317)
-[![validate](https://github.com/sogeor/packer-images/actions/workflows/validate.yml/badge.svg)](https://github.com/sogeor/packer-images/actions/workflows/validate.yml)
+[![validate](https://github.com/sogeor/images/actions/workflows/validate.yml/badge.svg)](https://github.com/sogeor/images/actions/workflows/validate.yml)
 
 Node images for the sogeor platform: Proxmox templates and the Talos Image Factory schematic.
 

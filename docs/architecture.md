@@ -2,8 +2,8 @@
 
 ## Purpose
 
-`packer-images` produces VM templates for the nodes of the sogeor platform. Downstream
-repositories (`infra`, `mgmt-infra`) find templates by Proxmox tags and clone them; they never
+`images` produces VM templates for the nodes of the sogeor platform. Downstream
+repositories (`modules`, `management`) find templates by Proxmox tags and clone them; they never
 depend on how a template was built.
 
 ## Components
