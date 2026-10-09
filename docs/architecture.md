@@ -45,7 +45,7 @@ flowchart LR
 
 The runner joins a WireGuard network (`10.99.0.0/24`) through the VDS hub and reaches only the
 Proxmox API (`192.168.100.10:8006`) and SSH of the build VM (`192.168.100.250:22`). Nothing in the
-home network is exposed to the internet. See [ADR 0003](adr-drafts/0003-ci-wireguard.md).
+home network is exposed to the internet. See [ADR 0003](adr/0003-ci-access-over-wireguard.md).
 
 ## Interface (contract)
 
@@ -57,3 +57,26 @@ home network is exposed to the internet. See [ADR 0003](adr-drafts/0003-ci-wireg
 | Reports | `reports-<image>` workflow artifact |
 
 Consumers select the newest template by tags; existing VMs are not recreated when a new template appears.
+
+## Template lifecycle
+
+```mermaid
+stateDiagram-v2
+  [*] --> Building: build workflow / tools/packer.sh build
+  Building --> Failed: any step fails
+  Failed --> [*]: VM destroyed, previous templates untouched
+  Building --> Template: cleanup and conversion
+  Template --> Verified: verify-clone passes
+  Verified --> Current: newest by tags
+  Current --> Previous: a newer template is built
+  Previous --> Pruned: beyond the 3 newest
+  Pruned --> [*]
+```
+
+## Decisions
+
+| ADR | Decision |
+|---|---|
+| [0002](adr/0002-local-build-workflow.md) | Workflows live in this repository until the shared reusable workflow exists |
+| [0003](adr/0003-ci-access-over-wireguard.md) | GitHub-hosted runners reach Proxmox through a WireGuard hub |
+| [0004](adr/0004-talos-image-factory.md) | Talos images come from Image Factory, not Packer |
