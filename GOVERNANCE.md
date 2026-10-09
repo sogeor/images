@@ -2,7 +2,7 @@
 
 ## Model
 
-`packer-images` is part of the sogeor platform and follows a single-maintainer model.
+`images` is part of the sogeor platform and follows a single-maintainer model.
 The maintainer makes final decisions on scope, design and releases. Significant design
 decisions are recorded as ADRs in [`docs/adr-drafts/`](docs/adr-drafts).
 
