@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - OpenSSF Best Practices badge (passing).
 - CONTRIBUTING, GOVERNANCE, CODE_OF_CONDUCT, ROADMAP, docs/architecture.md, docs/security.md (assurance case); vulnerability response process in SECURITY.md.
 - Talos Image Factory schematic ID and image URLs in `talos/README.md`.
+- Documentation to the platform standard: `docs/` (getting started, setup, configuration, usage, operations, troubleshooting, reference), MADR records in `docs/adr/`, MkDocs site, issue templates.
+- `docs` workflow: markdownlint, lychee link check, `mkdocs build --strict`; markdownlint pre-commit hook.
 
 ### Changed
 

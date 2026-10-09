@@ -4,7 +4,7 @@
 
 `images` is part of the sogeor platform and follows a single-maintainer model.
 The maintainer makes final decisions on scope, design and releases. Significant design
-decisions are recorded as ADRs in [`docs/adr-drafts/`](docs/adr-drafts).
+decisions are recorded as ADRs in [`docs/adr/`](docs/adr/index.md).
 
 Anyone may propose changes through issues and pull requests. Proposals are accepted when they
 fit the [roadmap](ROADMAP.md), pass all required checks and follow [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -20,7 +20,7 @@ fit the [roadmap](ROADMAP.md), pass all required checks and follow [CONTRIBUTING
 ## Decisions
 
 - Routine changes: merged by the maintainer once required checks pass.
-- Architectural changes: an ADR draft in `docs/adr-drafts/` is added in the same pull request.
+- Architectural changes: an ADR in `docs/adr/` is added in the same pull request.
 - Security fixes: handled privately per [SECURITY.md](SECURITY.md).
 
 ## Continuity

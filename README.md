@@ -1,111 +1,70 @@
 # images
 
+Hardened, scanned virtual machine images for the sogeor platform.
+
+[![validate](https://github.com/sogeor/images/actions/workflows/validate.yml/badge.svg)](https://github.com/sogeor/images/actions/workflows/validate.yml)
+[![docs](https://github.com/sogeor/images/actions/workflows/docs.yml/badge.svg)](https://github.com/sogeor/images/actions/workflows/docs.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sogeor/images/badge)](https://scorecard.dev/viewer/?uri=github.com/sogeor/images)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15317/badge)](https://www.bestpractices.dev/projects/15317)
-[![validate](https://github.com/sogeor/images/actions/workflows/validate.yml/badge.svg)](https://github.com/sogeor/images/actions/workflows/validate.yml)
+[![License](https://img.shields.io/github/license/sogeor/images)](LICENSE)
 
-Node images for the sogeor platform: Proxmox templates and the Talos Image Factory schematic.
+## Overview
 
-## Images
-
-| Image | Target | Builder | Proxmox tags |
-|---|---|---|---|
-| `ubuntu-2404-base` | Proxmox | `proxmox-iso`, autoinstall (`cidata`) | `packer;ubuntu-2404;base;v<build>` |
-| `ubuntu-2404-k8s` | Proxmox | `proxmox-clone` of base | `packer;ubuntu-2404;k8s;k8s-<maj>-<min>;v<build>` |
-| `talos` | Any | Talos Image Factory, [`talos/schematic.yaml`](talos/schematic.yaml) | `talos-<version>-<schematic>` |
-
-## Build
+- Builds **Proxmox VE templates** with Packer: `ubuntu-2404-base` and `ubuntu-2404-k8s`.
+- **Secure by default:** no passwords, SSH keys only, ephemeral build key, identity reset on clone.
+- **Verified every build:** goss checks, OpenSCAP CIS Level 1 Server report, Trivy scan and CycloneDX SBOM.
+- **Kubernetes-ready:** containerd 2.x, kubeadm/kubelet/kubectl held, control plane images pre-pulled.
+- **Automated lifecycle:** monthly rebuilds, clone verification, pruning of old templates, Renovate updates.
+- **Talos Linux:** Image Factory schematic as code with published image URLs.
 
 ```mermaid
 flowchart LR
-  B[build.yml<br/>ubuntu-24.04 / images] -->|WireGuard 10.99.0.3| E[VDS zelda 10.99.0.1]
-  E -->|WireGuard| PVE[Proxmox 10.99.0.2]
-  PVE --> BASE[ubuntu-2404-base<br/>.250]
-  BASE --> TB[[base template]]
-  TB -->|full clone| K8S[ubuntu-2404-k8s<br/>.250]
-  K8S --> TK[[k8s template]]
-  TB & TK --> VC[verify-clone<br/>.250]
-  BASE & K8S -.-> R[(goss · OpenSCAP CIS · Trivy)]
+  GH[GitHub Actions<br/>build workflow] -->|WireGuard| PVE[Proxmox VE]
+  PVE --> B[ubuntu-2404-base]
+  B -->|full clone| K[ubuntu-2404-k8s]
+  B & K --> V[verify clone]
+  B & K -.-> R[(goss · OpenSCAP · Trivy · SBOM)]
+  V --> P[prune: keep 3 newest]
 ```
-
-| Stage | base | k8s |
-|---|---|---|
-| Install | ISO 24.04.5, autoinstall, static IP | Clone of base, cloud-init |
-| Configure | `update`, `packages`, `ansible/image.yml` | `update`, `kubernetes` |
-| Verify | goss, OpenSCAP, Trivy | goss, OpenSCAP, Trivy |
-| Clean up | machine-id, host keys, logs, cloud-init, build user | same |
-
-Builds run monthly and on demand (`workflow_dispatch`), from `master` only. After a successful clone check,
-the `prune` job keeps the 3 latest templates of each image.
-
-## Image properties
-
-- No passwords; SSH by keys only, `PermitRootLogin no`, PAM without `nullok`. The build key is ephemeral and the build user is removed.
-- `datasource_list: [NoCloud, ConfigDrive]`; `subiquity-disable-cloudinit-networking.cfg` removed.
-- Swap disabled.
-- k8s: containerd 2.x (`SystemdCgroup`), `overlay`/`br_netfilter`, sysctl, kubeadm/kubelet/kubectl on `hold`,
-  control plane images pre-pulled.
-
-## Reports
-
-Published as workflow artifacts, `reports/<template>/`:
-
-| File | |
-|---|---|
-| `*-goss.xml` | goss, JUnit |
-| `*-openscap.html`, `*-openscap-arf.xml`, `*-openscap-results.xml` | CIS Ubuntu 24.04 L1 Server + [tailoring](tests/openscap) |
-| `*-openscap-summary.json` | Counts, score, failed rules |
-| `*-openscap-remediation.yml` | Ansible remediation for failed rules |
-| `*-trivy.json`, `*-sbom.cdx.json` | Vulnerabilities, CycloneDX SBOM |
 
 ## Quick start
 
 ```bash
-tools/packer.sh fmt
+git clone https://github.com/sogeor/images.git && cd images
 tools/packer.sh init ubuntu-2404-base
 tools/packer.sh validate ubuntu-2404-base --syntax-only
-```
-
-From the home network (see [Variables](#variables)):
-
-```bash
 PKR_VAR_build_version="$(date +%Y%m%d)-0" tools/packer.sh build ubuntu-2404-base
-PKR_VAR_build_version="$(date +%Y%m%d)-0" PKR_VAR_base_template="$(tools/find-template.sh ubuntu-2404 base)" \
-  tools/packer.sh build ubuntu-2404-k8s
-tools/verify-clone.sh "$(tools/find-template.sh ubuntu-2404 k8s)"
 ```
 
-`tools/packer.sh` assembles `common/*.pkr.hcl` and `images/<image>/` into `.build/<image>/` and adds
-`<image>.pkrvars.hcl`. Local overrides go to `*.auto.pkrvars.hcl`.
+Requires Packer, Python and a Proxmox VE API token: see [Getting started](docs/getting-started.md).
 
-## Layout
+## Documentation
 
-```
-common/                 # plugins, shared variables
-images/<image>/         # build.pkr.hcl, variables.pkr.hcl, <image>.pkrvars.hcl, cidata/
-scripts/common/         # cloud-init, build user, goss, OpenSCAP, Trivy
-scripts/debian-family/  # update, packages, kubernetes, cleanup
-ansible/                # image.yml, requirements.yml
-tests/goss/             # base.yaml, k8s.yaml
-tests/openscap/         # tailoring
-talos/                  # schematic.yaml
-tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-templates.sh, ci-*.sh
-```
+| Page | What is inside |
+|---|---|
+| [Overview](docs/index.md) | Purpose, outputs, place in the platform |
+| [Getting started](docs/getting-started.md) | From zero to the first verified template |
+| [Repository setup](docs/setup.md) | GitHub settings, Proxmox token, CI network, Environment, Renovate, Scorecard |
+| [Configuration](docs/configuration.md) | Every variable, environment variable, workflow input and secret |
+| [Usage](docs/usage.md) | Builds, verification, template lookup, reports, Talos |
+| [Operations](docs/operations.md) | Monthly rebuild, updates, rollback, pruning, credential rotation, new OS |
+| [Architecture](docs/architecture.md) | Components, pipeline, network, lifecycle, contract |
+| [Security](docs/security.md) | Guarantees, limits, assurance case |
+| [Troubleshooting](docs/troubleshooting.md) | Symptoms, causes and fixes |
+| [Reference](docs/reference/workflows.md) | [Workflows](docs/reference/workflows.md), [scripts](docs/reference/scripts.md), [names and tags](docs/reference/tags.md) |
+| [Decisions](docs/adr/index.md) | Architecture decision records |
 
-## Variables
+Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt && mkdocs serve`.
 
-| Variable | Source | |
-|---|---|---|
-| `PROXMOX_URL` | Environment `images`, variable | `https://192.168.100.10:8006/api2/json` |
-| `PROXMOX_USERNAME` | Environment `images`, variable | `packer@pve!ci` |
-| `PROXMOX_TOKEN` | Environment `images`, secret | |
-| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY` | Environment `images`, variable | `161.104.47.226:51820`, VDS public key |
-| `WG_RUNNER_PRIVATE_KEY` | Environment `images`, secret | runner key (`10.99.0.3`) |
-| `PROXMOX_CA_PEM` | Environment `images`, variable | Proxmox CA |
-| `SCORECARD_TOKEN` | Repository secret | fine-grained PAT, Administration: read-only |
-| `PROXMOX_CA_FILE` | optional | Proxmox CA for `tools/*.sh` |
-| `PKR_VAR_build_version` | CI / manual | |
-| `PKR_VAR_base_template` | CI / manual | |
+## Supported matrix
+
+| OS | Proxmox VE | OpenStack (Selectel, VK Cloud) | Yandex Cloud | Status |
+|---|---|---|---|---|
+| Ubuntu Server 24.04 LTS | base, k8s | planned | planned | stable |
+| Ubuntu Server 26.04 LTS | planned | planned | planned | planned |
+| Astra Linux SE 1.8 | planned | — | — | planned |
+| Alpine Linux | planned | planned | — | experimental |
+| Talos Linux | Image Factory | Image Factory | Image Factory | stable |
 
 ## Versions
 
@@ -128,6 +87,10 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 | hashicorp/setup-packer | v3.4.0 |
 | ossf/scorecard-action | v2.4.4 |
 | github/codeql-action | v4.38.3 |
+| DavidAnson/markdownlint-cli2-action | v24.2.0 |
+| lycheeverse/lychee-action | v2.9.0 |
+| markdownlint-cli2 (pre-commit) | 0.23.3 |
+| mkdocs-material | 9.7.7 |
 | actionlint | 1.7.12 |
 | gitleaks | 8.30.1 |
 | zizmor | 1.30.1 |
@@ -135,20 +98,19 @@ tools/                  # packer.sh, find-template.sh, verify-clone.sh, prune-te
 | ansible-lint | 26.9.0 |
 | shellcheck | 0.11.0 |
 
-Python tools are locked with hashes: `tools/requirements-ci.txt`, `.github/requirements-lint.txt` (generated from `*.in` by pip-compile).
+Python tools are locked with hashes (`*.in` → `*.txt` by pip-compile): `tools/requirements-ci.txt`,
+`.github/requirements-lint.txt`, `.github/requirements-docs.txt`.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md): process, tests and coding standards. Project governance is in
-[GOVERNANCE.md](GOVERNANCE.md), plans in [ROADMAP.md](ROADMAP.md), conduct rules in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Governance: [GOVERNANCE.md](GOVERNANCE.md).
+Plans: [ROADMAP.md](ROADMAP.md). Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Changes: [CHANGELOG.md](CHANGELOG.md).
 
-## Links
+## Security
 
-- [Architecture](docs/architecture.md)
-- [Security](docs/security.md)
-- [docs/adr-drafts](docs/adr-drafts)
-- [SECURITY.md](SECURITY.md)
-- [CHANGELOG.md](CHANGELOG.md)
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
+What the images guarantee: [docs/security.md](docs/security.md).
 
 ## License
 

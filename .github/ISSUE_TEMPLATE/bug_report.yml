@@ -1,0 +1,46 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use [Private Vulnerability Reporting](https://github.com/sogeor/images/security/advisories/new).
+        Check [Troubleshooting](https://github.com/sogeor/images/blob/master/docs/troubleshooting.md) first.
+  - type: dropdown
+    id: image
+    attributes:
+      label: Image
+      options:
+        - ubuntu-2404-base
+        - ubuntu-2404-k8s
+        - talos schematic
+        - CI / tooling
+        - documentation
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Command or workflow run, actual result, expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output. Remove tokens, keys and private addresses.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Commit SHA or template name (for example ubuntu-2404-base-v20-1).
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Proxmox VE version, Packer version, where the build ran (local / GitHub Actions).

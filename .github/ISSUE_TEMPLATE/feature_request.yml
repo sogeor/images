@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a new image, OS version, provider or improvement.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Check the [roadmap](https://github.com/sogeor/images/blob/master/ROADMAP.md) first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you cannot do today and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change. For a new image include OS, version and target provider.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

@@ -4,7 +4,7 @@
 
 - No passwords: no user has a password; SSH accepts keys only (`PasswordAuthentication no`, `PermitRootLogin no`); PAM has no `nullok`.
 - No build leftovers: the build user and its ephemeral key are removed; `machine-id`, SSH host keys, logs and cloud-init state are reset, so every clone gets fresh identity.
-- Baseline hardening: nftables and auditd enabled, AppArmor on (Ubuntu default); checked against CIS Ubuntu 24.04 Level 1 Server by OpenSCAP on every build (report and deviations in [`tests/openscap/`](../tests/openscap)).
+- Baseline hardening: nftables and auditd enabled, AppArmor on (Ubuntu default); checked against CIS Ubuntu 24.04 Level 1 Server by OpenSCAP on every build (report and deviations in [`tests/openscap/`](https://github.com/sogeor/images/tree/master/tests/openscap)).
 - Known vulnerabilities are visible: every template has a Trivy report and a CycloneDX SBOM.
 - Verified inputs: the ISO, goss, SSG and Trivy are verified by sha256; Kubernetes packages by a pinned repository key fingerprint; CI Python packages by hashes; actions by commit SHA.
 - Monthly rebuilds pick up security updates.
@@ -14,7 +14,7 @@
 - Full CIS compliance: about 72% of Level 1 rules pass in the template; the rest are applied by the `hardening` role in the `ansible` repository after cloning.
 - Trusted SSH access: `TrustedUserCAKeys` and user accounts are configured after cloning; a template on its own is not reachable.
 - Runtime protection (EDR, file integrity monitoring), disk encryption, or Secure Boot.
-- Signed templates or provenance attestations (planned, see [ROADMAP](../ROADMAP.md)).
+- Signed templates or provenance attestations (planned, see [ROADMAP](https://github.com/sogeor/images/blob/master/ROADMAP.md)).
 - Protection against a compromised Proxmox host.
 
 ## Assurance case

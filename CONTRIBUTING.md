@@ -10,7 +10,7 @@
    - signed commits;
    - all required checks green (`packer fmt / validate`, `linters`);
    - `README.md` and `CHANGELOG.md` updated when behavior changes;
-   - an ADR draft in `docs/adr-drafts/` for architectural changes.
+   - an ADR in [`docs/adr/`](docs/adr/index.md) (status `proposed`) for architectural changes.
 
 By contributing you agree that your contribution is licensed under [Apache-2.0](LICENSE).
 
@@ -45,4 +45,4 @@ tools/packer.sh validate ubuntu-2404-base --syntax-only
 ```
 
 Requires Packer 1.16.1, Python 3.12 and `pre-commit`. Building images needs access to a Proxmox
-host (see [README](README.md#variables)).
+host (see [Repository setup](docs/setup.md) and [Configuration](docs/configuration.md)).
