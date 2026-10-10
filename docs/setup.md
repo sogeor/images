@@ -183,7 +183,7 @@ Check: after the next push to `master` the **scorecard** run succeeds and the Br
 ## Renovate
 
 1. Install the [Renovate GitHub App](https://github.com/apps/renovate) → **Configure** → `<owner>` → **Only select repositories** → this repository.
-2. The configuration is already in `renovate.json`: no automerge, grouped updates, SHA-pinned pre-commit hooks, hash-locked Python requirements.
+2. The configuration is already in `renovate.json`: no automerge, Conventional Commit titles (`semanticCommits`), grouped updates, SHA-pinned pre-commit hooks, hash-locked Python requirements.
 
 Check: an issue **Dependency Dashboard** appears within an hour.
 
