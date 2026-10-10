@@ -43,6 +43,39 @@ The pkgs.k8s.io signing key is pinned by fingerprint (`K8S_KEY_FPR` in
 2. Compare its fingerprint with the value published in the Kubernetes documentation.
 3. Update `K8S_KEY_FPR` if it changed; open a pull request.
 
+## Update locked Python dependencies
+
+- **Goal:** regenerate a hash-locked requirements file after editing its `.in` file
+  (Renovate does this automatically for version updates).
+- **Files:**
+
+    | Input | Lock file | Used by |
+    |---|---|---|
+    | `tools/requirements-ci.in` | `tools/requirements-ci.txt` | `tools/ci-install.sh` (ansible-core) |
+    | `.github/requirements-lint.in` | `.github/requirements-lint.txt` | `validate` workflow (yamllint, zizmor, ansible-lint) |
+    | `.github/requirements-docs.in` | `.github/requirements-docs.txt` | `docs` workflow, local `mkdocs serve` |
+
+- **Preconditions:** Python 3.12 (same as the CI runner), `pip-tools` 7.5.1 (works with `pip` 25.2).
+
+1. Edit the `.in` file (exact `==` pins only).
+2. From the repository root run, for each changed pair:
+
+    ```bash
+    python3 -m piptools compile --quiet --generate-hashes --allow-unsafe --strip-extras \
+      -o tools/requirements-ci.txt tools/requirements-ci.in
+    ```
+
+    Add `--upgrade` only when you intend to update transitive dependencies.
+
+3. Keep the generated header: Renovate reads the `pip-compile` command from it to regenerate the
+   file. Never use `--no-header`.
+4. If the command line in the header contains `--no-index` (added by a local pip configuration),
+   remove that flag from the header; otherwise Renovate cannot download packages.
+5. Review `git diff`: only the intended packages and their hashes change.
+
+- **Check:** `python3 -m pip install --require-hashes -r <lock file>` succeeds; the `validate` and
+  `docs` workflows pass.
+
 ## Roll back to a previous template
 
 Templates are immutable. To roll back, point consumers to the previous template name (or remove

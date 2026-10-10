@@ -44,5 +44,8 @@ tools/packer.sh init ubuntu-2404-base
 tools/packer.sh validate ubuntu-2404-base --syntax-only
 ```
 
+Python dependencies are hash-locked; to change one, edit the `.in` file and regenerate the lock file as
+described in [Operations](docs/operations.md#update-locked-python-dependencies) (keep the pip-compile header).
+
 Requires Packer 1.16.1, Python 3.12 and `pre-commit`. Building images needs access to a Proxmox
 host (see [Repository setup](docs/setup.md) and [Configuration](docs/configuration.md)).
