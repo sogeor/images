@@ -52,6 +52,14 @@ Symptom → cause → fix. Most entries come from real build failures.
 | `build user still exists` | Build user removal failed | Check the `remove-build-user.sh` step of the build |
 | Template cannot be deleted by `prune` | A VM is a linked clone of it | Use full clones for VMs; delete or full-clone the dependent VM |
 
+## Dependencies
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Dependency Dashboard shows **Config Migration Needed** for `pip-compile` | Renovate now reads lock files: `managerFilePatterns` must match the generated `requirements-*.txt`, not `*.in` | Point the `pip-compile` pattern in `renovate.json` to `requirements-*.txt`; keep the pip-compile header in lock files ([Operations](operations.md#update-locked-python-dependencies)) |
+| Renovate cannot update a lock file, log mentions `--no-index` or missing header | The lock file was generated with `--no-header`, or the header contains `--no-index` | Regenerate with the header and remove `--no-index` from it ([Operations](operations.md#update-locked-python-dependencies)) |
+| `pip install --require-hashes` fails with a hash mismatch | The lock file was edited by hand or generated for another Python version | Regenerate with Python 3.12 |
+
 ## Still stuck
 
 Run the build with `debug = true` (CI) or `PACKER_LOG=1` (local) and open an

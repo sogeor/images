@@ -98,8 +98,8 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | ansible-lint | 26.9.0 |
 | shellcheck | 0.11.0 |
 
-Python tools are locked with hashes (`*.in` → `*.txt` by pip-compile): `tools/requirements-ci.txt`,
-`.github/requirements-lint.txt`, `.github/requirements-docs.txt`.
+Python tools are locked with hashes (`*.in` → `*.txt` by pip-compile, header kept for Renovate): `tools/requirements-ci.txt`,
+`.github/requirements-lint.txt`, `.github/requirements-docs.txt`. Regeneration: [Operations](docs/operations.md#update-locked-python-dependencies).
 
 ## Contributing
 

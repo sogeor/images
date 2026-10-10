@@ -124,6 +124,10 @@ How to create them: [Repository setup](setup.md).
 
 ## Tool versions
 
+Python tools are locked with hashes in `tools/requirements-ci.txt`, `.github/requirements-lint.txt`
+and `.github/requirements-docs.txt`; how to regenerate them:
+[Operations → Update locked Python dependencies](operations.md#update-locked-python-dependencies).
+
 Pinned versions are listed in [README → Versions](https://github.com/sogeor/images#versions)
 and updated by Renovate. Download checksums live next to the versions in the scripts
 (`GOSS_SHA256`, `SSG_SHA512`, `TRIVY_SHA256`, `ACTIONLINT_SHA256`, `GITLEAKS_SHA256`).

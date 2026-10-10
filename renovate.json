@@ -71,7 +71,7 @@
   ],
   "pip-compile": {
     "managerFilePatterns": [
-      "/(^|/)requirements-[a-z]+\\.in$/"
+      "/(^|/)requirements-[a-z]+\\.txt$/"
     ]
   },
   "pip_requirements": {
