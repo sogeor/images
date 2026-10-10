@@ -6,6 +6,7 @@
     "helpers:pinGitHubActionDigests"
   ],
   "automerge": false,
+  "semanticCommits": "enabled",
   "pinDigests": true,
   "labels": [
     "dependencies"

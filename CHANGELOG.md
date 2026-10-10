@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Documentation translated to English.
 - Repository renamed from `packer-images` to `images`.
 - Renovate: `pip-compile` manager reads the lock files (`requirements-*.txt`) instead of `*.in`; lock files carry the pip-compile header (without `--no-index`) so Renovate can regenerate them.
+- Renovate: Conventional Commit titles for pull requests (`semanticCommits`).
 
 ### Removed
 
