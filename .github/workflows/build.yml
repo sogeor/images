@@ -26,67 +26,24 @@ concurrency:
   group: packer-build-proxmox
   cancel-in-progress: false
 
-env:
-  PACKER_VERSION: "1.16.1"
-
 jobs:
   base:
     name: ubuntu-2404-base
     if: >-
       github.ref == 'refs/heads/master'
       && (github.event_name == 'schedule' || inputs.image != 'k8s')
-    runs-on: ubuntu-24.04
-    environment: images
-    timeout-minutes: 90
-    outputs:
-      template: ${{ steps.manifest.outputs.template }}
-    env:
-      PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-      PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
-      PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
-        with:
-          version: ${{ env.PACKER_VERSION }}
-
-      - name: Install tools
-        run: tools/ci-install.sh
-
-      - name: Open WireGuard
-        env:
-          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
-          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
-          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
-          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
-        run: tools/ci-wireguard.sh
-
-      - name: packer build
-        env:
-          PACKER_GITHUB_API_TOKEN: ${{ github.token }}
-          PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
-          PACKER_LOG: ${{ inputs.debug && '1' || '' }}
-          PKR_VAR_git_sha: ${{ github.sha }}
-        run: tools/packer.sh build ubuntu-2404-base
-
-      - id: manifest
-        name: Read manifest
-        run: echo "template=$(jq -r '.builds[-1].custom_data.template_name' manifest/ubuntu-2404-base.json)" >>"$GITHUB_OUTPUT"
-
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: reports-ubuntu-2404-base
-          path: |
-            reports/
-            manifest/
-          if-no-files-found: warn
-          retention-days: 90
+    uses: sogeor/workflows/.github/workflows/packer-build.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    with:
+      environment: images
+      image: ubuntu-2404-base
+      build-command: tools/ci-build.sh
+      install-command: tools/ci-install.sh
+      ca-pem-var: PROXMOX_CA_PEM
+      mesh: wireguard
+      manifest-file: manifest/ubuntu-2404-base.json
+      manifest-query: .builds[-1].custom_data.template_name
+      debug: ${{ inputs.debug || false }}
 
   k8s:
     name: ubuntu-2404-k8s
@@ -96,73 +53,20 @@ jobs:
       && github.ref == 'refs/heads/master'
       && (needs.base.result == 'success' || needs.base.result == 'skipped')
       && (github.event_name == 'schedule' || inputs.image != 'base')
-    runs-on: ubuntu-24.04
-    environment: images
-    timeout-minutes: 90
-    outputs:
-      template: ${{ steps.manifest.outputs.template }}
-    env:
-      PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-      PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
-      PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
-        with:
-          version: ${{ env.PACKER_VERSION }}
-
-      - name: Install tools
-        run: tools/ci-install.sh
-
-      - name: Open WireGuard
-        env:
-          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
-          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
-          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
-          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
-        run: tools/ci-wireguard.sh
-
-      - name: Resolve base template
-        id: base
-        env:
-          FROM_BUILD: ${{ needs.base.outputs.template }}
-          FROM_INPUT: ${{ inputs.base_template }}
-        run: |
-          set -euo pipefail
-          tpl="${FROM_BUILD:-${FROM_INPUT:-}}"
-          if [[ -z "$tpl" ]]; then
-            tpl="$(tools/find-template.sh ubuntu-2404 base)"
-          fi
-          [[ "$tpl" =~ ^ubuntu-2404-base-v[0-9A-Za-z-]+$ ]] || { echo "invalid template: $tpl" >&2; exit 1; }
-          echo "template=$tpl" >>"$GITHUB_OUTPUT"
-
-      - name: packer build
-        env:
-          PACKER_GITHUB_API_TOKEN: ${{ github.token }}
-          PKR_VAR_build_version: ${{ github.run_number }}-${{ github.run_attempt }}
-          PACKER_LOG: ${{ inputs.debug && '1' || '' }}
-          PKR_VAR_git_sha: ${{ github.sha }}
-          PKR_VAR_base_template: ${{ steps.base.outputs.template }}
-        run: tools/packer.sh build ubuntu-2404-k8s
-
-      - id: manifest
-        name: Read manifest
-        run: echo "template=$(jq -r '.builds[-1].custom_data.template_name' manifest/ubuntu-2404-k8s.json)" >>"$GITHUB_OUTPUT"
-
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: reports-ubuntu-2404-k8s
-          path: |
-            reports/
-            manifest/
-          if-no-files-found: warn
-          retention-days: 90
+    uses: sogeor/workflows/.github/workflows/packer-build.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    with:
+      environment: images
+      image: ubuntu-2404-k8s
+      build-command: tools/ci-build.sh
+      install-command: tools/ci-install.sh
+      ca-pem-var: PROXMOX_CA_PEM
+      mesh: wireguard
+      packer-vars: |
+        base_template=${{ needs.base.outputs.result || inputs.base_template }}
+      manifest-file: manifest/ubuntu-2404-k8s.json
+      manifest-query: .builds[-1].custom_data.template_name
+      debug: ${{ inputs.debug || false }}
 
   verify-clone:
     name: verify clone (${{ matrix.image }})
@@ -185,26 +89,40 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Export environment
+        uses: sogeor/workflows/actions/export-env@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        with:
+          vars-json: ${{ toJSON(vars) }}
+          vars: PROXMOX_URL PROXMOX_USERNAME
+          dotenv: ${{ secrets.ENV_SECRETS }}
+
+      - name: Trust Proxmox CA
+        env:
+          CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$CA_PEM" | sudo tee /usr/local/share/ca-certificates/pve-root-ca.crt >/dev/null
+          sudo update-ca-certificates >/dev/null
+
+      - name: Connect mesh
+        uses: sogeor/workflows/actions/setup-mesh@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        with:
+          mode: wireguard
+          wg-private-key: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          wg-server-public-key: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          wg-endpoint: ${{ vars.WG_ENDPOINT }}
+          wg-address: ${{ vars.WG_ADDRESS }}
+          wg-allowed-ips: ${{ vars.WG_ALLOWED_IPS }}
+          check-address: ${{ vars.MESH_CHECK_ADDRESS }}
+
       - name: Install tools
         run: tools/ci-install.sh
 
-      - name: Open WireGuard
-        env:
-          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
-          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
-          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
-          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
-        run: tools/ci-wireguard.sh
-
       - name: Clone, boot and check
         env:
-          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-          PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
-          PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
           IMAGE: ${{ matrix.image }}
-          BASE_TEMPLATE: ${{ needs.base.outputs.template }}
-          K8S_TEMPLATE: ${{ needs.k8s.outputs.template }}
+          BASE_TEMPLATE: ${{ needs.base.outputs.result }}
+          K8S_TEMPLATE: ${{ needs.k8s.outputs.result }}
         run: |
           set -euo pipefail
           if [[ "$IMAGE" == base ]]; then tpl="$BASE_TEMPLATE"; else tpl="$K8S_TEMPLATE"; fi
@@ -234,19 +152,33 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Open WireGuard
+      - name: Export environment
+        uses: sogeor/workflows/actions/export-env@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        with:
+          vars-json: ${{ toJSON(vars) }}
+          vars: PROXMOX_URL PROXMOX_USERNAME
+          dotenv: ${{ secrets.ENV_SECRETS }}
+
+      - name: Trust Proxmox CA
         env:
-          WG_PRIVATE_KEY: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
-          WG_SERVER_PUBLIC_KEY: ${{ vars.WG_SERVER_PUBLIC_KEY }}
-          WG_ENDPOINT: ${{ vars.WG_ENDPOINT }}
-          PROXMOX_URL: ${{ vars.PROXMOX_URL }}
-          PROXMOX_CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
-        run: tools/ci-wireguard.sh
+          CA_PEM: ${{ vars.PROXMOX_CA_PEM }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$CA_PEM" | sudo tee /usr/local/share/ca-certificates/pve-root-ca.crt >/dev/null
+          sudo update-ca-certificates >/dev/null
+
+      - name: Connect mesh
+        uses: sogeor/workflows/actions/setup-mesh@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        with:
+          mode: wireguard
+          wg-private-key: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
+          wg-server-public-key: ${{ vars.WG_SERVER_PUBLIC_KEY }}
+          wg-endpoint: ${{ vars.WG_ENDPOINT }}
+          wg-address: ${{ vars.WG_ADDRESS }}
+          wg-allowed-ips: ${{ vars.WG_ALLOWED_IPS }}
+          check-address: ${{ vars.MESH_CHECK_ADDRESS }}
 
       - name: Prune
-        env:
-          PROXMOX_USERNAME: ${{ vars.PROXMOX_USERNAME }}
-          PROXMOX_TOKEN: ${{ secrets.PROXMOX_TOKEN }}
         run: |
           set -euo pipefail
           for kind in k8s base; do

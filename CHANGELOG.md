@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - `ubuntu-2404-base`: `proxmox-iso`, autoinstall via `cidata`, static build address.
 - `ubuntu-2404-k8s`: `proxmox-clone` of base, containerd 2.x, Kubernetes 1.37.1 on `hold`, pre-pulled control plane images.
+- `tools/ci-build.sh`: CI build command; resolves the base template of `*-k8s` images.
 - `tools/packer.sh`, `tools/find-template.sh`, `tools/verify-clone.sh`, `tools/prune-templates.sh`.
 - goss, OpenSCAP CIS Ubuntu 24.04 L1 Server with tailoring, summary and Ansible remediation, Trivy + SBOM.
 - Talos Image Factory schematic.
@@ -22,6 +23,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- CI uses [sogeor/workflows](https://github.com/sogeor/workflows) v0.1.1 (pinned by commit SHA): `build` calls the reusable `packer-build.yml` for both images, `verify clone` and `prune templates` use the actions `export-env` and `setup-mesh`; `docs` calls the reusable `docs.yml` (its status check is now `docs / docs`). `scorecard` stays local to keep publishing results.
+- Environment `images`: the Proxmox token is read from the dotenv secret `ENV_SECRETS` (`PROXMOX_TOKEN=…`); new required variables `WG_ADDRESS`, `WG_ALLOWED_IPS`, `MESH_CHECK_ADDRESS`.
+- ADR 0002 superseded; ADR 0003 updated.
 - Layout: `images/`, `scripts/{common,debian-family}`.
 - Template tags: `packer;ubuntu-2404;<kind>;...;v<build>`.
 - Proxmox TLS verification enabled; Packer and plugin versions pinned.
@@ -38,5 +42,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `tools/ci-wireguard.sh` (replaced by `setup-mesh`); the separate `PROXMOX_TOKEN` Environment secret is no longer read.
 - `scripts/rhel-family/`.
 - systemd unit for build user removal.

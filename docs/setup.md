@@ -42,7 +42,7 @@ When typing topics, finish each with **Space**: Enter picks the highlighted sugg
 | Restrict deletions | on |
 | Require signed commits | on |
 | Require a pull request before merging | on, Required approvals `0` |
-| Require status checks to pass | on, **Require branches to be up to date**; checks `packer fmt / validate`, `linters`, `docs` |
+| Require status checks to pass | on, **Require branches to be up to date**; checks `packer fmt / validate`, `linters`, `docs / docs` |
 | Block force pushes | on |
 
 Status checks appear in **Add checks** only after they have run at least once.
@@ -161,17 +161,26 @@ Variables (**Add environment variable**):
 | `PROXMOX_CA_PEM` | content of `/etc/pve/pve-root-ca.pem` | CA to verify the API certificate |
 | `WG_ENDPOINT` | `<hub-ip>:51820` | WireGuard hub endpoint |
 | `WG_SERVER_PUBLIC_KEY` | `base64…=` | Hub public key |
+| `WG_ADDRESS` | `10.99.0.3/24` | Runner address in the WireGuard network |
+| `WG_ALLOWED_IPS` | `10.99.0.0/24, 192.168.100.0/24` | Networks routed through the tunnel: WireGuard network and lab network |
+| `MESH_CHECK_ADDRESS` | `<proxmox-host>:8006` | Address checked after connecting |
 
 Secrets (**Add environment secret**):
 
 | Name | Description |
 |---|---|
-| `PROXMOX_TOKEN` | Token value (UUID) |
+| `ENV_SECRETS` | One line `PROXMOX_TOKEN=<token value>` (dotenv; more `NAME=value` lines may be added) |
 | `WG_RUNNER_PRIVATE_KEY` | Content of `runner.key`; delete the local file afterwards |
 
-Values must not contain leading or trailing spaces or tabs.
+Values must not contain leading or trailing spaces or tabs. Details: [Configuration](configuration.md#ci-network-access-environment-images).
 
-Check: **Actions → build → Run workflow** with `image = base` passes the **Open WireGuard** step.
+Check: **Actions → build → Run workflow** with `image = base` passes the **Connect mesh** step of the
+`ubuntu-2404-base` job.
+
+!!! note "Migrating from the `PROXMOX_TOKEN` secret"
+    Earlier versions read a separate `PROXMOX_TOKEN` secret and defaulted `WG_ADDRESS` and
+    `WG_ALLOWED_IPS`. Add the new variables and `ENV_SECRETS` first, run a successful build, then
+    delete the old `PROXMOX_TOKEN` secret.
 
 ## Repository secret for Scorecard
 

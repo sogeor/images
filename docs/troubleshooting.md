@@ -11,14 +11,17 @@ Symptom → cause → fix. Most entries come from real build failures.
 | `403` deleting a volume after a failed build | Role lacks `Datastore.Allocate` | Add it to `PackerBuilder` |
 | `x509: certificate signed by unknown authority` | Proxmox CA is not trusted | Trust `/etc/pve/pve-root-ca.pem` (CI: `PROXMOX_CA_PEM`); do not skip TLS verification |
 | `x509: certificate is valid for …, not <address>` | The API certificate lacks the address used in `PROXMOX_URL` | `pvecm updatecerts --force` or use a name from the certificate |
-| `parse "\thttps://…": net/url: invalid control character` | Invisible tab or space in a GitHub variable | Re-enter the value; `tools/ci-wireguard.sh` trims whitespace for known variables |
+| `parse "\thttps://…": net/url: invalid control character` | Invisible tab or space in a GitHub variable | Re-enter the value; `export-env` and `setup-mesh` trim single-line values |
 | Packer stops after ~1 minute while Proxmox task still runs | Default `task_timeout` of the Proxmox builder is 1 minute | Templates set `task_timeout = "30m"`; keep it when adding images |
 
 ## CI network
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Proxmox API not reachable via WireGuard` | No handshake: wrong key, endpoint or blocked UDP | `wg show` on the hub; check `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY`, the runner peer `PublicKey`; check that UDP `51820` is open |
+| **Connect mesh** fails: `MESH_CHECK_ADDRESS` not reachable | No handshake: wrong key, endpoint or blocked UDP; or wrong `WG_ALLOWED_IPS` | `wg show` on the hub; check `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY`, `WG_ADDRESS`, `WG_ALLOWED_IPS`, the runner peer `PublicKey`; check that UDP `51820` is open |
+| `PROXMOX_TOKEN: parameter null or not set` | `ENV_SECRETS` missing or without `PROXMOX_TOKEN=` | Set the Environment secret `ENV_SECRETS` ([setup](setup.md#environment-images)) |
+| `invalid base template` in `ubuntu-2404-k8s` | The `base_template` input has a wrong name | Use `ubuntu-2404-base-v<build>` or leave it empty |
+| Required check `docs` stays pending | The check is now named `docs / docs` | Update the status check in the ruleset ([setup](setup.md)) |
 | Handshake ok, API times out | Hub does not forward, or Proxmox does not route back | Check `net.ipv4.ip_forward`, `ufw route` rules, `AllowedIPs` and `MASQUERADE` on Proxmox |
 | WireGuard blocked in the network path | DPI blocks WireGuard | Plan B: AmneziaWG ([ADR 0003](adr/0003-ci-access-over-wireguard.md)) |
 

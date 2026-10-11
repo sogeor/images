@@ -103,7 +103,7 @@ as a linked-clone base.
 
 | Credential | Steps |
 |---|---|
-| Proxmox token | `pveum user token remove packer@pve ci` → create again ([setup](setup.md#proxmox-ve)) → update `PROXMOX_TOKEN` |
+| Proxmox token | `pveum user token remove packer@pve ci` → create again ([setup](setup.md#proxmox-ve)) → update the `PROXMOX_TOKEN=` line of `ENV_SECRETS` |
 | WireGuard runner key | Generate a new pair → replace the peer `PublicKey` on the hub → update `WG_RUNNER_PRIVATE_KEY` |
 | `SCORECARD_TOKEN` | Regenerate the fine-grained token before expiry → update the repository secret |
 
@@ -128,5 +128,5 @@ Example: Ubuntu Server 26.04 LTS next to 24.04.
 
 ## Move to a different Proxmox host or network
 
-Change `PROXMOX_URL`, `PROXMOX_CA_PEM`, `build_ip_cidr`, `build_gateway` (and the WireGuard
+Change `PROXMOX_URL`, `PROXMOX_CA_PEM`, `build_ip_cidr`, `build_gateway` (and `WG_ALLOWED_IPS`, `MESH_CHECK_ADDRESS`, the WireGuard
 routes); run **build** with `image = base`.

@@ -39,6 +39,14 @@ Option 3.
 - WireGuard may be blocked on some paths; plan B is AmneziaWG.
 - Replaced by a Headscale mesh when the platform `edge` is deployed.
 
+## Update 2026-10-11
+
+The runner joins the network with the `setup-mesh` action of [sogeor/workflows](https://github.com/sogeor/workflows) (mode
+`wireguard`) instead of `tools/ci-wireguard.sh`, which is removed. The addresses above are no longer
+script defaults: they are Environment variables `WG_ADDRESS`, `WG_ALLOWED_IPS` and
+`MESH_CHECK_ADDRESS`. The Proxmox token moved from the `PROXMOX_TOKEN` secret to the dotenv secret
+`ENV_SECRETS`. Switching to Headscale later changes the `mesh` mode only.
+
 ## Pros and cons of the other options
 
 - Cloudflare Tunnel: no inbound ports, but `501` on POST and unstable SSH.
