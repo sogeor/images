@@ -75,17 +75,31 @@ Fixed settings: full clone, 2 vCPU, 4 GiB RAM, static address via cloud-init `ip
 | `PROXMOX_NODE` | no | Node name for `tools/*.sh` (default `pve`) |
 | `PROXMOX_CA_FILE` | no | CA file for `curl` in `tools/*.sh` when the CA is not trusted system-wide |
 
-### `tools/ci-wireguard.sh`
+### `tools/ci-build.sh`
 
 | Name | Required | Default | Description |
 |---|---|---|---|
-| `WG_PRIVATE_KEY` | yes | — | Runner private key |
-| `WG_SERVER_PUBLIC_KEY` | yes | — | Hub public key |
-| `WG_ENDPOINT` | yes | — | Hub `host:port` |
-| `PROXMOX_URL` | yes | — | Used to wait until the API answers; whitespace is trimmed and the value is exported to `GITHUB_ENV` |
-| `PROXMOX_CA_PEM` | yes | — | CA certificate, installed into the system trust store |
-| `WG_ADDRESS` | no | `10.99.0.3/24` | Runner address in the WireGuard network |
-| `WG_ALLOWED_IPS` | no | `10.99.0.0/24, 192.168.100.0/24` | Networks routed through the tunnel |
+| `PKR_VAR_base_template` | no | newest base template | `*-k8s` images only: base template to clone; empty means `tools/find-template.sh <os> base`. Must match `<os>-base-v<build>` |
+
+All other variables are those of `tools/packer.sh build` and Proxmox access above.
+
+### CI network access (Environment `images`)
+
+The `build` workflow connects the runner with the `setup-mesh` action of
+[sogeor/workflows](https://github.com/sogeor/workflows) in `wireguard` mode.
+
+| Name | Kind | Required | Description | Example |
+|---|---|---|---|---|
+| `WG_RUNNER_PRIVATE_KEY` | secret | yes | Runner private key | `base64…=` |
+| `WG_SERVER_PUBLIC_KEY` | variable | yes | Hub public key | `base64…=` |
+| `WG_ENDPOINT` | variable | yes | Hub `host:port` | `203.0.113.10:51820` |
+| `WG_ADDRESS` | variable | yes | Runner address in the WireGuard network, CIDR | `10.99.0.3/24` |
+| `WG_ALLOWED_IPS` | variable | yes | Comma-separated networks routed through the tunnel | `10.99.0.0/24, 192.168.100.0/24` |
+| `MESH_CHECK_ADDRESS` | variable | yes | `host:port` that must accept TCP once connected (the Proxmox API) | `192.168.100.10:8006` |
+| `PROXMOX_CA_PEM` | variable | yes | CA certificate, installed into the system trust store | content of `/etc/pve/pve-root-ca.pem` |
+| `ENV_SECRETS` | secret | yes | Dotenv lines exported to the job and masked; must contain `PROXMOX_TOKEN=<token>` | `PROXMOX_TOKEN=CHANGE_ME` |
+
+Single-line variable values are trimmed of whitespace.
 
 ### Build scripts (set by the templates)
 
@@ -116,8 +130,8 @@ The schedule runs at 03:00 UTC on the 1st of every month with `image = all`.
 | Name | Kind | Scope | Used by |
 |---|---|---|---|
 | `PROXMOX_URL`, `PROXMOX_USERNAME`, `PROXMOX_CA_PEM` | variable | Environment `images` | `build` |
-| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY` | variable | Environment `images` | `build` |
-| `PROXMOX_TOKEN`, `WG_RUNNER_PRIVATE_KEY` | secret | Environment `images` | `build` |
+| `WG_ENDPOINT`, `WG_SERVER_PUBLIC_KEY`, `WG_ADDRESS`, `WG_ALLOWED_IPS`, `MESH_CHECK_ADDRESS` | variable | Environment `images` | `build` |
+| `ENV_SECRETS` (`PROXMOX_TOKEN=…`), `WG_RUNNER_PRIVATE_KEY` | secret | Environment `images` | `build` |
 | `SCORECARD_TOKEN` | secret | repository | `scorecard` |
 
 How to create them: [Repository setup](setup.md).

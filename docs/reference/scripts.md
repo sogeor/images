@@ -10,7 +10,7 @@
 | `prune-templates.sh` | `<os> <kind> [keep=3] [--apply]` | Lists (dry run) or deletes templates beyond the newest `keep`; skips templates whose deletion fails (linked clones) with a warning |
 | `pve-api.sh` | sourced | `pve_api METHOD PATH [curl args]`, `pve_wait_task UPID`, `pve_templates OS KIND`; token passed via `curl --config -`, never on the command line |
 | `ci-install.sh` | — | CI: installs `xorriso` and hash-locked `tools/requirements-ci.txt` |
-| `ci-wireguard.sh` | — | CI: joins the WireGuard network, trusts the Proxmox CA, waits for the API ([configuration](../configuration.md#toolsci-wireguardsh)) |
+| `ci-build.sh` | `<image>` | CI build command: for `*-k8s` resolves and checks `PKR_VAR_base_template` (newest base template when empty), then `packer.sh build <image>` ([configuration](../configuration.md#toolsci-buildsh)) |
 
 ## `scripts/` — run inside the build VM as root
 

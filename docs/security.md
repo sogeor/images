@@ -25,7 +25,7 @@
 |---|---|---|
 | Template contents | Tampered inputs (ISO, tools, packages) | sha256 / fingerprint / hash pinning; HTTPS with certificate verification |
 | Template contents | Secrets or credentials baked into the image | Ephemeral build key, build user removal, no passwords, cleanup checked by goss |
-| CI | Malicious workflow change or injection | Branch ruleset, required checks, zizmor/actionlint/CodeQL, actions pinned by SHA, minimal `permissions` |
+| CI | Malicious workflow change or injection | Branch ruleset, required checks, zizmor/actionlint/CodeQL, actions and shared workflows of sogeor/workflows pinned by SHA, minimal `permissions` |
 | CI credentials | Theft of the Proxmox token or WireGuard key | Secrets only in Environment `images` limited to `master`; scoped Proxmox role; runner reaches only two addresses |
 | Home network | Exposure through the build path | No inbound ports at home; WireGuard hub on the VDS with forwarding limited to Proxmox API and the build VM |
 | Repository | Leaked secrets in commits | gitleaks (pre-commit and CI), GitHub secret scanning with push protection |
