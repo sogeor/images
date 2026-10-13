@@ -38,7 +38,7 @@ repos:
     hooks:
       - id: zizmor
   - repo: https://github.com/ansible/ansible-lint
-    rev: e7f397ad6dfa20d274afa17cd7bbedd84ed136f5 # v26.9.0
+    rev: 9bce2bfb8f4a984e6b13767bc0d6bf0a49492164 # v26.10.1
     hooks:
       - id: ansible-lint
         files: ^ansible/
