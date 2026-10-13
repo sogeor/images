@@ -55,6 +55,13 @@ Symptom → cause → fix. Most entries come from real build failures.
 | `build user still exists` | Build user removal failed | Check the `remove-build-user.sh` step of the build |
 | Template cannot be deleted by `prune` | A VM is a linked clone of it | Use full clones for VMs; delete or full-clone the dependent VM |
 
+## Scorecard
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `ossf/scorecard-action` fails with `workflow verification failed` | The calling `scorecard.yml` breaks a Scorecard API check: top-level `env:` or `defaults:`, write permissions at workflow level, or `id-token: write` on another job | Restore `permissions: {}` at workflow level and grant permissions only to the `scorecard` job ([Workflows reference](reference/workflows.md#scorecard)) |
+| Branch-Protection check scores 0 or is skipped | `SCORECARD_TOKEN` missing or expired | Renew the token ([setup](setup.md#repository-secret-for-scorecard)) |
+
 ## Dependencies
 
 | Symptom | Cause | Fix |
