@@ -31,8 +31,10 @@ actions `export-env` and `setup-mesh`. `build.yml` and `docs.yml` now call them,
 SHA of the tag. Repository-specific parts stay here:
 
 - `tools/ci-build.sh` — build command that resolves the base template of `*-k8s` images;
-- jobs `verify clone` and `prune templates`, which use the shared actions;
-- `scorecard.yml`, because `ossf/scorecard-action` publishes results only from a workflow file of the
-  scanned repository.
+- jobs `verify clone` and `prune templates`, which use the shared actions.
+
+On 2026-10-14 `scorecard.yml` also moved to the reusable `scorecard.yml`: publishing results from a
+reusable workflow works when the calling workflow meets the Scorecard API checks
+([Workflows reference](../reference/workflows.md#scorecard)).
 
 The design of the shared workflows is recorded in the ADRs of sogeor/workflows.

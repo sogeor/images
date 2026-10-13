@@ -82,12 +82,9 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | Trivy | 0.75.0 |
 | SCAP Security Guide | 0.1.82 |
 | Talos Linux | 1.14.2 |
-| sogeor/workflows (`packer-build`, `docs`, `export-env`, `setup-mesh`) | v0.1.1 |
+| sogeor/workflows (`packer-build`, `docs`, `scorecard`, `export-env`, `setup-mesh`) | v0.1.1 |
 | actions/checkout | v7.0.1 |
-| actions/upload-artifact | v7.0.2 |
 | hashicorp/setup-packer | v3.4.0 |
-| ossf/scorecard-action | v2.4.4 |
-| github/codeql-action | v4.38.3 |
 | markdownlint-cli2 (pre-commit) | 0.23.3 |
 | mkdocs-material | 9.7.7 |
 | actionlint | 1.7.12 |

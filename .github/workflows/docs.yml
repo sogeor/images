@@ -20,3 +20,4 @@ jobs:
       link-args: >-
         --exclude-path .build
         --exclude '^https://github\.com/sogeor/images/(security|issues/new)'
+        --exclude '^https://factory\.talos\.dev/?$'

@@ -27,7 +27,7 @@ All workflows live in `.github/workflows/`. Actions are pinned by commit SHA; pe
 
 Steps: markdownlint (`.markdownlint.yaml`), lychee link check, `mkdocs build --strict`. Lychee checks
 `github.com/<owner>/<repo>/blob/...` links through `raw.githubusercontent.com` and treats 429 and
-502–504 as temporary; this repository adds exclusions for `.build` and pages that require sign-in.
+502–504 as temporary; this repository adds exclusions for `.build`, pages that require sign-in and the Talos Image Factory start page (`factory.talos.dev` often times out from GitHub-hosted runners).
 
 ## `build`
 
@@ -58,8 +58,11 @@ Inputs: [Configuration → Workflow inputs](../configuration.md#workflow-inputs)
 |---|---|
 | Triggers | weekly schedule (Monday 04:17 UTC), push to `master`, ruleset changes (`branch_protection_rule`) |
 | Secrets | `SCORECARD_TOKEN` |
-| Permissions | `security-events: write`, `id-token: write` (publishing results) |
+| Permissions | none at workflow level; the calling job gets `security-events: write`, `id-token: write` (publishing results), `contents: read`, `actions: read` |
+| Implementation | reusable `scorecard.yml` of [sogeor/workflows](https://github.com/sogeor/workflows) v0.1.1, pinned by commit SHA |
+| Check name | `scorecard / Scorecard analysis` (not required) |
 
 Uploads SARIF to **Security → Code scanning** and publishes the score for the README badge.
-Kept in this repository instead of the reusable `scorecard.yml`: `ossf/scorecard-action` publishes
-results only from a workflow file of the scanned repository.
+The Scorecard API verifies the calling workflow before accepting published results, so the file
+must keep `permissions: {}` at workflow level, have no top-level `env:` or `defaults:`, and grant
+`id-token: write` only to the `scorecard` job.
