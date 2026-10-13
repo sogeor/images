@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - CI uses [sogeor/workflows](https://github.com/sogeor/workflows) v0.1.1 (pinned by commit SHA): `build` calls the reusable `packer-build.yml` for both images, `verify clone` and `prune templates` use the actions `export-env` and `setup-mesh`; `docs` calls the reusable `docs.yml` (its status check is now `docs / docs`). `scorecard` calls the reusable `scorecard.yml` (check `scorecard / Scorecard analysis`) and keeps publishing results.
+- `docs`: lychee skips the Talos Image Factory start page, which times out from GitHub-hosted runners.
 - Environment `images`: the Proxmox token is read from the dotenv secret `ENV_SECRETS` (`PROXMOX_TOKEN=…`); new required variables `WG_ADDRESS`, `WG_ALLOWED_IPS`, `MESH_CHECK_ADDRESS`.
 - ADR 0002 superseded; ADR 0003 updated.
 - Layout: `images/`, `scripts/{common,debian-family}`.

@@ -27,7 +27,7 @@ All workflows live in `.github/workflows/`. Actions are pinned by commit SHA; pe
 
 Steps: markdownlint (`.markdownlint.yaml`), lychee link check, `mkdocs build --strict`. Lychee checks
 `github.com/<owner>/<repo>/blob/...` links through `raw.githubusercontent.com` and treats 429 and
-502–504 as temporary; this repository adds exclusions for `.build` and pages that require sign-in.
+502–504 as temporary; this repository adds exclusions for `.build`, pages that require sign-in and the Talos Image Factory start page (`factory.talos.dev` often times out from GitHub-hosted runners).
 
 ## `build`
 
