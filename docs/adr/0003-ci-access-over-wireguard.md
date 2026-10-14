@@ -47,6 +47,11 @@ script defaults: they are Environment variables `WG_ADDRESS`, `WG_ALLOWED_IPS` a
 `MESH_CHECK_ADDRESS`. The Proxmox token moved from the `PROXMOX_TOKEN` secret to the dotenv secret
 `ENV_SECRETS`. Switching to Headscale later changes the `mesh` mode only.
 
+## Update 2026-10-15
+
+The hub also forwards the runner to TCP `50000` of the build VM: `tools/verify-talos.sh` checks the
+Talos API of a template clone ([ADR 0005](0005-talos-proxmox-template.md)).
+
 ## Pros and cons of the other options
 
 - Cloudflare Tunnel: no inbound ports, but `501` on POST and unstable SSH.

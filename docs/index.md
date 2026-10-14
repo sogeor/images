@@ -18,6 +18,7 @@ Image Factory schematic used by Talos clusters.
 | `ubuntu-2404-k8s` template | The base template plus containerd 2.x, kubeadm, kubelet, kubectl and pre-pulled control plane images |
 | Reports per template | goss results, OpenSCAP CIS Level 1 Server report and remediation, Trivy vulnerabilities, CycloneDX SBOM |
 | Talos schematic | Image Factory schematic ID and image URLs for Talos nodes |
+| `talos-base` template | Talos `nocloud` disk image in maintenance mode for Cluster API on Proxmox VE |
 
 ## Supported matrix
 
@@ -27,7 +28,7 @@ Image Factory schematic used by Talos clusters.
 | Ubuntu Server 26.04 LTS | planned | planned | planned | planned |
 | Astra Linux SE 1.8 | planned | — | — | planned |
 | Alpine Linux | planned | planned | — | experimental |
-| Talos Linux | Image Factory | Image Factory | Image Factory | stable |
+| Talos Linux | Image Factory; template `base` for Cluster API | Image Factory (Glance image planned) | Image Factory | stable |
 
 ## Place in the platform
 

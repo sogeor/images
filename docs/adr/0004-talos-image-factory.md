@@ -23,3 +23,4 @@ published in `talos/README.md` and consumed by cluster configuration.
 - No Packer build for Talos; images are reproducible from the schematic and the Talos version.
 - The schematic ID changes only when `schematic.yaml` changes and must then be updated where it is used.
 - Image availability depends on Image Factory; the URLs are pinned to a Talos version.
+- Cluster API needs a ready template rather than an ISO: see [ADR 0005](0005-talos-proxmox-template.md).

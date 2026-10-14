@@ -90,6 +90,11 @@ pveum aclmod / -token 'packer@pve!ci' -role PackerBuilder
 
 Save `full-tokenid` (`packer@pve!ci`) and `value` (shown once).
 
+For the Talos template, allow disk image imports on the download storage:
+**Datacenter → Storage → `local` → Edit → Content** → add **Import** → **OK**
+(or `pvesm set local --content iso,vztmpl,backup,import` — keep the types already listed).
+Check: **Datacenter → Storage** lists `Import` for `local`.
+
 Check:
 
 ```bash
@@ -136,6 +141,7 @@ WireGuard hub on a small VPS; the runner joins it for the duration of a job
     ufw allow 51820/udp
     ufw route allow in on wg0 out on wg0 from 10.99.0.3 to <proxmox-host> port 8006 proto tcp
     ufw route allow in on wg0 out on wg0 from 10.99.0.3 to <build-vm-ip> port 22 proto tcp
+    ufw route allow in on wg0 out on wg0 from 10.99.0.3 to <build-vm-ip> port 50000 proto tcp
     ufw route allow in on wg0 out on wg0 from 10.99.0.2 to 10.99.0.3
     ufw reload && systemctl restart wg-quick@wg0
     ```

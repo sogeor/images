@@ -33,7 +33,7 @@
 ### Trust boundaries
 
 1. GitHub (repository, Actions runner) ↔ the WireGuard network: crossed only by jobs in Environment `images` from `master`.
-2. WireGuard network ↔ home network: the VDS forwards the runner only to `192.168.100.10:8006` and `192.168.100.250:22`.
+2. WireGuard network ↔ home network: the VDS forwards the runner only to `192.168.100.10:8006` and `192.168.100.250` ports `22` and `50000`.
 3. Build VM ↔ internet: package mirrors and tool downloads, all verified.
 4. Template ↔ consumers: consumers trust templates by tag; identity is regenerated on clone.
 
