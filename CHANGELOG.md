@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Talos template for Cluster API on Proxmox VE: `talos/talos.env` (version, schematic, checksums), `tools/talos-template.sh`, `tools/verify-talos.sh`, `tools/talos-install-cli.sh`, `tools/talos-checksum.sh`; `build` input `image = talos`; ADR 0005.
+- Talos template for Cluster API on Proxmox VE: `talos/talos.env` (version, schematic, checksums), `tools/talos-template.sh`, `tools/verify-talos.sh`, `tools/talos-install-cli.sh`, `tools/talos-checksum.sh`; `build` input `image = talos`; ADR 0005. The runner downloads the Talos image and uploads it to Proxmox (the Proxmox host may not reach the Image Factory CDN).
 - `ubuntu-2404-base`: `proxmox-iso`, autoinstall via `cidata`, static build address.
 - `ubuntu-2404-k8s`: `proxmox-clone` of base, containerd 2.x, Kubernetes 1.37.1 on `hold`, pre-pulled control plane images.
 - `tools/ci-build.sh`: CI build command; resolves the base template of `*-k8s` images.

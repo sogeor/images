@@ -20,8 +20,8 @@ the bootstrap provider (CABPT) supplies it through cloud-init (NoCloud) when a n
 ## Considered options
 
 1. Packer `proxmox-iso`: boot a live ISO and write the Talos disk image with `dd`.
-2. Proxmox API only: `download-url` with content `import` and a sha256 checksum, then a VM whose
-   disk is created with `import-from`, converted to a template.
+2. Proxmox API only: put the image into a storage with content `import` (checksum-verified), then a
+   VM whose disk is created with `import-from`, converted to a template.
 
 ## Decision outcome
 
@@ -29,7 +29,7 @@ Option 2, implemented in `tools/talos-template.sh`. Packer requires a boot ISO a
 disk image; option 1 adds a live system and a manual disk write.
 
 - Image: `nocloud-amd64.qcow2` from Image Factory for the schematic and version in `talos/talos.env`;
-  the sha256 is pinned there and verified by Proxmox during the download. Image Factory does not
+  the sha256 is pinned there, checked on the runner after the download and again by Proxmox on upload. Image Factory does not
   publish checksums for custom schematics; `tools/talos-checksum.sh` computes them, and the images
   were checked to be byte-identical on repeated downloads.
 - VM: `q35`, OVMF with a 4M EFI disk without pre-enrolled keys (the image is not signed for Secure
@@ -47,9 +47,17 @@ disk image; option 1 adds a live system and a manual disk write.
 
 ### Consequences
 
-- The storage that receives the download must allow the content type **Import** (Proxmox VE 8.4+).
+- The storage that receives the image must allow the content type **Import** (Proxmox VE 8.4+).
 - A Renovate update of the Talos version needs `tools/talos-checksum.sh` on the same branch.
 - Pruning keeps the 3 newest Talos templates, that is the 3 newest version/schematic pairs.
 - The CI runner must reach port 50000 of the verification VM through the WireGuard hub.
 - The OpenStack image (`openstack-amd64.qcow2`, checksum already pinned) is published together with
   the OpenStack images of Ubuntu.
+
+## Update 2026-10-15
+
+The first build used `download-url`, so the Proxmox host fetched the image itself. The task hung in
+retries: the host could not keep a connection to the Image Factory CDN. The runner now downloads the
+image, checks the sha256 and uploads it with `POST /nodes/{node}/storage/{storage}/upload`
+(content `import`, sha256 checked by Proxmox again). The Proxmox host needs no internet access
+for Talos images.
