@@ -55,6 +55,7 @@ if ! pve_api GET "/nodes/${PROXMOX_NODE}/storage/${import_storage}/content?conte
   echo "${TALOS_NOCLOUD_SHA256}  ${work}/${file}" | sha256sum -c --quiet -
   echo "upload ${volid}"
   upid="$(pve_api POST "/nodes/${PROXMOX_NODE}/storage/${import_storage}/upload" \
+    -H "Expect:" \
     -F "content=import" \
     -F "checksum=${TALOS_NOCLOUD_SHA256}" \
     -F "checksum-algorithm=sha256" \

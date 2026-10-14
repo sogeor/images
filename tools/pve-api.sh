@@ -12,8 +12,14 @@ pve_api() {
   if [[ -n "${PROXMOX_CA_FILE:-}" ]]; then
     ca=(--cacert "$PROXMOX_CA_FILE")
   fi
-  curl -fsS "${ca[@]}" -X "$method" --config - "$@" "${PROXMOX_URL%/}${path}" \
-    <<<"header = \"Authorization: PVEAPIToken=${PROXMOX_USERNAME}=${PROXMOX_TOKEN}\""
+  local body rc=0
+  body="$(curl -sS --fail-with-body "${ca[@]}" -X "$method" --config - "$@" "${PROXMOX_URL%/}${path}" \
+    <<<"header = \"Authorization: PVEAPIToken=${PROXMOX_USERNAME}=${PROXMOX_TOKEN}\"")" || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    echo "${method} ${path}: ${body}" >&2
+    return "$rc"
+  fi
+  printf '%s\n' "$body"
 }
 
 pve_wait_task() {
