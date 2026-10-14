@@ -101,6 +101,22 @@ The `build` workflow connects the runner with the `setup-mesh` action of
 
 Single-line variable values are trimmed of whitespace.
 
+### Talos (`talos/talos.env`, `tools/talos-*.sh`)
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `TALOS_VERSION` | string | — | yes | Talos version without `v`; updated by Renovate | `1.14.2` |
+| `TALOS_SCHEMATIC` | string, 64 hex | — | yes | Image Factory schematic ID of `talos/schematic.yaml` | `7d4c31cbd96d…` |
+| `TALOS_NOCLOUD_SHA256` | string, 64 hex | — | yes | sha256 of `nocloud-amd64.qcow2`; Proxmox verifies the download | written by `tools/talos-checksum.sh` |
+| `TALOS_OPENSTACK_SHA256` | string, 64 hex | — | yes | sha256 of `openstack-amd64.qcow2` (OpenStack images) | written by `tools/talos-checksum.sh` |
+| `TALOSCTL_SHA256` | string, 64 hex | — | yes | sha256 of `talosctl-linux-amd64` from the release `sha256sum.txt` | written by `tools/talos-checksum.sh` |
+| `TALOS_IMPORT_STORAGE` | env | `local` | no | Storage with content type Import that receives the download | `local` |
+| `TALOS_DISK_STORAGE` | env | `local-lvm` | no | Storage for the EFI disk, system disk and cloud-init drive | `local-lvm` |
+| `TALOS_BRIDGE` | env | `vmbr0` | no | Bridge of `net0` | `vmbr0` |
+
+`tools/talos-template.sh <build>`: build version, `[0-9A-Za-z-]+`; CI passes `<run_number>-<run_attempt>`.
+`tools/verify-talos.sh <template> [ip/cidr] [gateway]`: defaults `192.168.100.250/24`, `192.168.100.1`.
+
 ### Build scripts (set by the templates)
 
 | Name | Script | Description |
@@ -118,12 +134,13 @@ Single-line variable values are trimmed of whitespace.
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `image` | choice `all` / `base` / `k8s` | `all` | What to build. `k8s` alone clones `base_template` or the newest base template |
+| `image` | choice `all` / `base` / `k8s` / `talos` | `all` | What to build. `all` means both Ubuntu images; `k8s` alone clones `base_template` or the newest base template; `talos` creates the Talos template if none exists for the pinned version and schematic |
 | `base_template` | string | empty | Base template for `k8s`; empty means the template built in the same run or the newest by tags |
 | `debug` | boolean | `false` | Sets `PACKER_LOG=1` |
-| `prune` | boolean | `false` | Delete all but the 3 newest templates of each image after a successful clone check. Always on for the monthly schedule |
+| `prune` | boolean | `false` | Delete all but the 3 newest templates of each image after a successful clone check. Always on for the monthly schedule. With `image = talos` it prunes Talos templates only |
 
-The schedule runs at 03:00 UTC on the 1st of every month with `image = all`.
+The schedule runs at 03:00 UTC on the 1st of every month with `image = all`; Talos is never rebuilt
+on schedule.
 
 ## Secrets and variables summary
 

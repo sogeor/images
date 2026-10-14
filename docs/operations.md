@@ -112,8 +112,24 @@ Check: **build** with `image = base` passes; **scorecard** passes.
 ## Update the Talos schematic
 
 1. Edit `talos/schematic.yaml` (extensions).
-2. Get the new ID ([Usage → Talos images](usage.md#talos-images)) and update `talos/README.md`.
-3. Update the schematic ID wherever clusters consume it.
+2. Get the new ID ([Usage → Talos images](usage.md#talos-images)) and update `talos/README.md` and
+   `TALOS_SCHEMATIC` in `talos/talos.env`.
+3. Run `tools/talos-checksum.sh` and commit the new checksums.
+4. After merging, run **build** with `image = talos` and give the new template name and tags to the
+   cluster configuration.
+
+## Update Talos
+
+Renovate opens a pull request that changes `TALOS_VERSION` in `talos/talos.env`.
+
+1. Check out the pull request branch and run `tools/talos-checksum.sh`; it downloads the images and
+   the release `sha256sum.txt` and updates `TALOS_NOCLOUD_SHA256`, `TALOS_OPENSTACK_SHA256`,
+   `TALOSCTL_SHA256`.
+2. Commit, update `talos/README.md` and the README **Versions** table, merge.
+3. Run **build** with `image = talos`.
+4. Move clusters to the new template on purpose: changing the pinned build replaces nodes.
+
+Check: **build** passes **Clone, boot and check** of the `talos-base` job.
 
 ## Add a new OS version
 

@@ -15,7 +15,7 @@ Hardened, scanned virtual machine images for the sogeor platform.
 - **Verified every build:** goss checks, OpenSCAP CIS Level 1 Server report, Trivy scan and CycloneDX SBOM.
 - **Kubernetes-ready:** containerd 2.x, kubeadm/kubelet/kubectl held, control plane images pre-pulled.
 - **Automated lifecycle:** monthly rebuilds, clone verification, pruning of old templates, Renovate updates.
-- **Talos Linux:** Image Factory schematic as code with published image URLs.
+- **Talos Linux:** Image Factory schematic as code with published image URLs and a Proxmox VE template for Cluster API.
 
 ```mermaid
 flowchart LR
@@ -64,7 +64,7 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | Ubuntu Server 26.04 LTS | planned | planned | planned | planned |
 | Astra Linux SE 1.8 | planned | — | — | planned |
 | Alpine Linux | planned | planned | — | experimental |
-| Talos Linux | Image Factory | Image Factory | Image Factory | stable |
+| Talos Linux | Image Factory; template `base` for Cluster API | Image Factory (Glance image planned) | Image Factory | stable |
 
 ## Versions
 

@@ -42,6 +42,15 @@
       ]
     },
     {
+      "groupName": "talos",
+      "matchFileNames": [
+        "talos/talos.env"
+      ],
+      "prBodyNotes": [
+        "Run `tools/talos-checksum.sh` on this branch and commit the updated checksums before merging."
+      ]
+    },
+    {
       "matchDatasources": [
         "github-runners"
       ],
@@ -56,6 +65,16 @@
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^talos/talos\\.env$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+[A-Z_]+=(?<currentValue>\\S+)"
       ],
       "extractVersionTemplate": "^v?(?<version>.*)$"
     },

@@ -98,3 +98,35 @@ for a changed schematic:
 ```bash
 curl -fsS -X POST --data-binary @talos/schematic.yaml https://factory.talos.dev/schematics
 ```
+
+## Talos template for Cluster API
+
+- **Goal:** a Proxmox VE template with the Talos `nocloud` disk image, booting into maintenance
+  mode, for Cluster API ([ADR 0005](adr/0005-talos-proxmox-template.md)).
+- **Preconditions:** the storage `TALOS_IMPORT_STORAGE` allows **Import**
+  ([setup](setup.md#proxmox-ve)); the runner reaches port 50000 of the verification VM
+  ([setup](setup.md#ci-network-access)).
+
+In GitHub Actions: **Actions → build → Run workflow**, `image = talos`. Locally:
+
+```bash
+export PROXMOX_URL=... PROXMOX_USERNAME=... PROXMOX_TOKEN=...
+tools/talos-install-cli.sh
+tools/talos-template.sh local-1
+tools/verify-talos.sh talos-base-vlocal-1
+```
+
+Expected: `template: talos-base-v<build>` and `ok: ... boots to maintenance mode, guest agent answers`.
+If a template for the same Talos version and schematic exists, `talos-template.sh` prints its name
+and changes nothing.
+
+Clone requirements for consumers:
+
+| Item | Value |
+|---|---|
+| Firmware | OVMF, machine `q35`, EFI disk 4M, Secure Boot keys not enrolled |
+| Disk | `scsi0` on VirtIO SCSI single, image size about 10 GB; grow it on clone if needed |
+| Network | `net0` VirtIO; address from cloud-init (NoCloud) or DHCP |
+| Cloud-init | drive on `ide2`; the bootstrap provider writes the Talos machine configuration as user data |
+| TPM | none |
+| Guest agent | enabled (`qemu-guest-agent` extension) |

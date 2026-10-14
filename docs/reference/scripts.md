@@ -10,6 +10,10 @@
 | `prune-templates.sh` | `<os> <kind> [keep=3] [--apply]` | Lists (dry run) or deletes templates beyond the newest `keep`; skips templates whose deletion fails (linked clones) with a warning |
 | `pve-api.sh` | sourced | `pve_api METHOD PATH [curl args]`, `pve_wait_task UPID`, `pve_templates OS KIND`; token passed via `curl --config -`, never on the command line |
 | `ci-install.sh` | — | CI: installs `xorriso` and hash-locked `tools/requirements-ci.txt` |
+| `talos-template.sh` | `<build>` | Creates `talos-base-v<build>` from the Image Factory `nocloud` image (Proxmox `download-url` with sha256, `import-from`); no-op when a template for the same Talos version and schematic exists ([configuration](../configuration.md#talos-talostalosenv-toolstalos-sh)) |
+| `verify-talos.sh` | `<template> [ip/cidr] [gateway]` | Linked clone, static address via cloud-init, waits for the Talos API on `:50000`, `talosctl get disks --insecure`, guest agent ping, destroy |
+| `talos-install-cli.sh` | — | Installs `talosctl` of `TALOS_VERSION` into `~/.local/bin` after a sha256 check |
+| `talos-checksum.sh` | — | Downloads the Image Factory images and the release `sha256sum.txt`, writes the checksums into `talos/talos.env` |
 | `ci-build.sh` | `<image>` | CI build command: for `*-k8s` resolves and checks `PKR_VAR_base_template` (newest base template when empty), then `packer.sh build <image>` ([configuration](../configuration.md#toolsci-buildsh)) |
 
 ## `scripts/` — run inside the build VM as root

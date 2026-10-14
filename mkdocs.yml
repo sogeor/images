@@ -67,3 +67,4 @@ nav:
       - "0002 Local build workflow": adr/0002-local-build-workflow.md
       - "0003 CI access over WireGuard": adr/0003-ci-access-over-wireguard.md
       - "0004 Talos Image Factory": adr/0004-talos-image-factory.md
+      - "0005 Talos template for Cluster API": adr/0005-talos-proxmox-template.md
