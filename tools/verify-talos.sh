@@ -22,7 +22,7 @@ src_vmid="$(pve_api GET "/nodes/${PROXMOX_NODE}/qemu" |
 }
 new_vmid="$(pve_api GET /cluster/nextid | jq -r '.data')"
 
-# shellcheck disable=SC2329
+# shellcheck disable=SC2317,SC2329
 cleanup() {
   echo "destroy ${new_vmid}"
   pve_api POST "/nodes/${PROXMOX_NODE}/qemu/${new_vmid}/status/stop" >/dev/null 2>&1 || true
