@@ -60,4 +60,5 @@ The first build used `download-url`, so the Proxmox host fetched the image itsel
 retries: the host could not keep a connection to the Image Factory CDN. The runner now downloads the
 image, checks the sha256 and uploads it with `POST /nodes/{node}/storage/{storage}/upload`
 (content `import`, sha256 checked by Proxmox again). The Proxmox host needs no internet access
-for Talos images.
+for Talos images. The upload is sent without `Expect: 100-continue`: pveproxy answers it with
+`400 Bad Request` and an empty body.
