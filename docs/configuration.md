@@ -107,10 +107,10 @@ Single-line variable values are trimmed of whitespace.
 |---|---|---|---|---|---|
 | `TALOS_VERSION` | string | — | yes | Talos version without `v`; updated by Renovate | `1.14.2` |
 | `TALOS_SCHEMATIC` | string, 64 hex | — | yes | Image Factory schematic ID of `talos/schematic.yaml` | `7d4c31cbd96d…` |
-| `TALOS_NOCLOUD_SHA256` | string, 64 hex | — | yes | sha256 of `nocloud-amd64.qcow2`; Proxmox verifies the download | written by `tools/talos-checksum.sh` |
+| `TALOS_NOCLOUD_SHA256` | string, 64 hex | — | yes | sha256 of `nocloud-amd64.qcow2`; checked on the runner and by Proxmox on upload | written by `tools/talos-checksum.sh` |
 | `TALOS_OPENSTACK_SHA256` | string, 64 hex | — | yes | sha256 of `openstack-amd64.qcow2` (OpenStack images) | written by `tools/talos-checksum.sh` |
 | `TALOSCTL_SHA256` | string, 64 hex | — | yes | sha256 of `talosctl-linux-amd64` from the release `sha256sum.txt` | written by `tools/talos-checksum.sh` |
-| `TALOS_IMPORT_STORAGE` | env | `local` | no | Storage with content type Import that receives the download | `local` |
+| `TALOS_IMPORT_STORAGE` | env | `local` | no | Storage with content type Import that receives the uploaded image | `local` |
 | `TALOS_DISK_STORAGE` | env | `local-lvm` | no | Storage for the EFI disk, system disk and cloud-init drive | `local-lvm` |
 | `TALOS_BRIDGE` | env | `vmbr0` | no | Bridge of `net0` | `vmbr0` |
 
