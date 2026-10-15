@@ -41,8 +41,8 @@ flowchart LR
 2. `ubuntu-2404-k8s` is a full clone of the newest base template plus containerd and Kubernetes.
 3. Each build runs goss, OpenSCAP and Trivy, uploads reports, cleans identity data and converts the VM to a template.
 4. `verify-clone` boots a clone and checks cloud-init, SSH and goss; `prune` keeps the 3 latest templates.
-5. On request (`image = talos`), `talos-template.sh` downloads the Talos `nocloud` image on the runner,
-   checks its sha256, uploads it to Proxmox (verified again), creates a VM from it and converts it to a template; `verify-talos.sh` checks
+5. On request (`image = talos`), `talos-template.sh` makes Proxmox download the Talos `nocloud` image
+   (sha256-verified), creates a VM from it and converts it to a template; `verify-talos.sh` checks
    the Talos API in maintenance mode.
 
 ## Network
