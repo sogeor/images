@@ -90,7 +90,7 @@ pveum aclmod / -token 'packer@pve!ci' -role PackerBuilder
 
 Save `full-tokenid` (`packer@pve!ci`) and `value` (shown once).
 
-For the Talos template, allow disk image imports on the storage that receives the uploaded image:
+For the Talos template, allow disk image imports on the storage that receives the image:
 **Datacenter → Storage → `local` → Edit → Content** → add **Import** → **OK**
 (or `pvesm set local --content iso,vztmpl,backup,import` — keep the types already listed).
 Check: **Datacenter → Storage** lists `Import` for `local`.

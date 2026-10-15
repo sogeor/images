@@ -59,17 +59,17 @@ Symptom → cause → fix. Most entries come from real build failures.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Upload fails with `content type 'import' not allowed` | The storage does not allow Import | Add **Import** to the storage content ([setup](setup.md#proxmox-ve)) |
+| `download-url` fails with `content type 'import' not allowed` | The storage does not allow Import | Add **Import** to the storage content ([setup](setup.md#proxmox-ve)) |
 | `sha256sum: WARNING: 1 computed checksum did NOT match` | `talos/talos.env` has old checksums after a version or schematic change | Run `tools/talos-checksum.sh` and commit |
 | `Talos API 192.168.100.250:50000 not reachable` | The hub does not forward port 50000, or the VM does not boot (Secure Boot keys enrolled) | Allow `192.168.100.250:50000` on the hub ([setup](setup.md#ci-network-access)); the template must use `pre-enrolled-keys=0` |
 | `qemu-guest-agent does not answer` | The schematic lacks the `qemu-guest-agent` extension | Check `talos/schematic.yaml` and the schematic ID |
 | `already exists`, no new template | A template for the same Talos version and schematic exists | Expected; change the version or schematic to build a new one |
-| Upload returns `400 Bad Request` with an empty body | curl sends `Expect: 100-continue` with multipart uploads; pveproxy rejects it | Send `-H "Expect:"` (done in `tools/talos-template.sh`) |
 | A `tools/*.sh` call fails with `METHOD /path: {...}` | Proxmox rejected the request; the JSON shows the reason (`errors`, `message`) | Fix the parameter named in `errors` |
 
 Proxmox `download-url` tasks for Image Factory may hang in retries (`Read error ... Connection timed out`)
-when the Proxmox host has poor connectivity to the Image Factory CDN; this is why the runner downloads the
-image and uploads it. Stop such a task in **Tasks** (double-click → **Stop**).
+when the Proxmox host has poor connectivity to the Image Factory CDN. `tools/talos-template.sh` waits
+10 minutes, stops the task and fails; run **build** again later. A task left from an interrupted run:
+**Tasks** → double-click → **Stop**.
 
 ## Scorecard
 

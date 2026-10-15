@@ -49,19 +49,18 @@ fi
 
 if ! pve_api GET "/nodes/${PROXMOX_NODE}/storage/${import_storage}/content?content=import" |
   jq -e --arg v "$volid" '.data[] | select(.volid == $v)' >/dev/null; then
-  work="$(mktemp -d)"
-  echo "download ${url}"
-  curl -fsSL --retry 5 --retry-all-errors -o "$work/${file}" "$url"
-  echo "${TALOS_NOCLOUD_SHA256}  ${work}/${file}" | sha256sum -c --quiet -
-  echo "upload ${volid}"
-  upid="$(pve_api POST "/nodes/${PROXMOX_NODE}/storage/${import_storage}/upload" \
-    -H "Expect:" \
-    -F "content=import" \
-    -F "checksum=${TALOS_NOCLOUD_SHA256}" \
-    -F "checksum-algorithm=sha256" \
-    -F "filename=@${work}/${file};filename=${file}" | jq -r '.data')"
-  rm -rf "$work"
-  pve_wait_task "$upid"
+  echo "download-url ${url}"
+  upid="$(pve_api POST "/nodes/${PROXMOX_NODE}/storage/${import_storage}/download-url" \
+    --data-urlencode "url=${url}" \
+    --data-urlencode "content=import" \
+    --data-urlencode "filename=${file}" \
+    --data-urlencode "checksum=${TALOS_NOCLOUD_SHA256}" \
+    --data-urlencode "checksum-algorithm=sha256" | jq -r '.data')"
+  if ! pve_wait_task "$upid"; then
+    pve_api DELETE "/nodes/${PROXMOX_NODE}/tasks/$(jq -rn --arg u "$upid" '$u | @uri')" >/dev/null 2>&1 || true
+    echo "download-url failed or timed out" >&2
+    exit 1
+  fi
 fi
 
 vmid="$(pve_api GET /cluster/nextid | jq -r '.data')"

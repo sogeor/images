@@ -29,7 +29,7 @@ Option 2, implemented in `tools/talos-template.sh`. Packer requires a boot ISO a
 disk image; option 1 adds a live system and a manual disk write.
 
 - Image: `nocloud-amd64.qcow2` from Image Factory for the schematic and version in `talos/talos.env`;
-  the sha256 is pinned there, checked on the runner after the download and again by Proxmox on upload. Image Factory does not
+  the sha256 is pinned there and verified by Proxmox during the download. Image Factory does not
   publish checksums for custom schematics; `tools/talos-checksum.sh` computes them, and the images
   were checked to be byte-identical on repeated downloads.
 - VM: `q35`, OVMF with a 4M EFI disk without pre-enrolled keys (the image is not signed for Secure
@@ -62,3 +62,9 @@ image, checks the sha256 and uploads it with `POST /nodes/{node}/storage/{storag
 (content `import`, sha256 checked by Proxmox again). The Proxmox host needs no internet access
 for Talos images. The upload is sent without `Expect: 100-continue`: pveproxy answers it with
 `400 Bad Request` and an empty body.
+
+The upload then still failed in CI with `400` and an empty body, while the same request from a
+workstation in the lab network succeeded for every size, and a new `download-url` task finished in
+seconds: the earlier hang was a temporary connectivity problem. The runner upload is removed;
+`download-url` on the Proxmox host is the only path. If the task fails or does not finish within
+10 minutes, it is stopped and the build fails; run it again later.
