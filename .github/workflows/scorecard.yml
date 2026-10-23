@@ -12,7 +12,7 @@ permissions: {}
 jobs:
   scorecard:
     name: scorecard
-    uses: sogeor/workflows/.github/workflows/scorecard.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    uses: sogeor/workflows/.github/workflows/scorecard.yml@f3d239075a515eb750183009ac483e37043dd6da # v1.0.0
     permissions:
       security-events: write
       id-token: write
