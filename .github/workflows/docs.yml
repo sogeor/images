@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   docs:
-    uses: sogeor/workflows/.github/workflows/docs.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    uses: sogeor/workflows/.github/workflows/docs.yml@f3d239075a515eb750183009ac483e37043dd6da # v1.0.0
     with:
       link-args: >-
         --exclude-path .build
