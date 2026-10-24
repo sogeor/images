@@ -32,7 +32,7 @@ jobs:
     if: >-
       github.ref == 'refs/heads/master'
       && (github.event_name == 'schedule' || inputs.image == 'all' || inputs.image == 'base')
-    uses: sogeor/workflows/.github/workflows/packer-build.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    uses: sogeor/workflows/.github/workflows/packer-build.yml@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       environment: images
@@ -53,7 +53,7 @@ jobs:
       && github.ref == 'refs/heads/master'
       && (needs.base.result == 'success' || needs.base.result == 'skipped')
       && (github.event_name == 'schedule' || inputs.image == 'all' || inputs.image == 'k8s')
-    uses: sogeor/workflows/.github/workflows/packer-build.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    uses: sogeor/workflows/.github/workflows/packer-build.yml@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       environment: images
@@ -91,7 +91,7 @@ jobs:
           persist-credentials: false
 
       - name: Export environment
-        uses: sogeor/workflows/actions/export-env@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/export-env@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           vars-json: ${{ toJSON(vars) }}
           vars: PROXMOX_URL PROXMOX_USERNAME
@@ -106,7 +106,7 @@ jobs:
           sudo update-ca-certificates >/dev/null
 
       - name: Connect mesh
-        uses: sogeor/workflows/actions/setup-mesh@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/setup-mesh@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           mode: wireguard
           wg-private-key: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
@@ -154,7 +154,7 @@ jobs:
           persist-credentials: false
 
       - name: Export environment
-        uses: sogeor/workflows/actions/export-env@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/export-env@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           vars-json: ${{ toJSON(vars) }}
           vars: PROXMOX_URL PROXMOX_USERNAME
@@ -169,7 +169,7 @@ jobs:
           sudo update-ca-certificates >/dev/null
 
       - name: Connect mesh
-        uses: sogeor/workflows/actions/setup-mesh@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/setup-mesh@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           mode: wireguard
           wg-private-key: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
@@ -203,7 +203,7 @@ jobs:
           persist-credentials: false
 
       - name: Export environment
-        uses: sogeor/workflows/actions/export-env@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/export-env@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           vars-json: ${{ toJSON(vars) }}
           vars: PROXMOX_URL PROXMOX_USERNAME
@@ -218,7 +218,7 @@ jobs:
           sudo update-ca-certificates >/dev/null
 
       - name: Connect mesh
-        uses: sogeor/workflows/actions/setup-mesh@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+        uses: sogeor/workflows/actions/setup-mesh@9bf70c2efed3619055210da0d0f70d9741850fcc # v1.1.2
         with:
           mode: wireguard
           wg-private-key: ${{ secrets.WG_RUNNER_PRIVATE_KEY }}
